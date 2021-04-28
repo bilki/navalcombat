@@ -1,3 +1,19 @@
+def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
+  val indigoCmd = for {
+    (compiled, _) <- Project.runTask(Compile / Keys.compile, state)
+    (fastJS, _)   <- Project.runTask(Compile / fastOptJS, compiled)
+    (indigo, _)   <- Project.runTask(indigoTask, fastJS)
+  } yield indigo
+
+  indigoCmd.getOrElse {
+    println(s"Game command [$name] failed!")
+    state.fail
+  }
+}
+
+lazy val buildGame = indigoCommand(indigoBuild, "buildGame")
+lazy val runGame   = indigoCommand(indigoRun, "runGame")
+
 lazy val root = project
   .in(file("."))
   .enablePlugins(
@@ -9,7 +25,8 @@ lazy val root = project
     description  := "Battleship single player clone",
     organization := "com.lambdarat",
     version      := "0.1.0",
-    scalaVersion := "3.0.0-RC2"
+    scalaVersion := "3.0.0-RC2",
+    commands    ++= Seq(buildGame, runGame)
   )
   .settings(
     showCursor          := true,
@@ -23,6 +40,3 @@ lazy val root = project
       "io.indigoengine" %%% "indigo-extras"     % "0.7.1"
     )
   )
-
-addCommandAlias("buildGame", ";compile;fastOptJS;indigoBuild")
-addCommandAlias("runGame", ";compile;fastOptJS;indigoRun")

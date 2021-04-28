@@ -1,15 +1,18 @@
-import indigo._
-import indigo.scenes._
+package com.lambdarat
+
+import indigo.*
+import indigo.scenes.*
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 @JSExportTopLevel("IndigoGame")
-object NavalCombat extends IndigoSandbox[Unit, Unit] {
+object NavalCombat extends IndigoSandbox[Unit, Unit]:
   val animations: Set[Animation] = Set.empty
   val assets: Set[AssetType]     = Set.empty
 
   val config: GameConfig = GameConfig.default
     .withViewport(GameViewport.at720p)
+    .withClearColor(RGBA.Red)
     .withMagnification(2)
   val fonts: Set[FontInfo] = Set.empty
   val shaders: Set[Shader] = Set.empty
@@ -24,4 +27,3 @@ object NavalCombat extends IndigoSandbox[Unit, Unit] {
 
   def updateModel(context: FrameContext[Unit], model: Unit): GlobalEvent => Outcome[Unit] =
     _ => Outcome(())
-}
