@@ -1,3 +1,5 @@
+ThisBuild / scalaVersion := "3.0.0-RC2"
+
 def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
   val indigoCmd = for {
     (compiled, result) <- Project.runTask(Compile / Keys.compile, state)
@@ -26,7 +28,6 @@ lazy val root = project
     description  := "Battleship single player clone",
     organization := "com.lambdarat",
     version      := "0.1.0",
-    scalaVersion := "3.0.0-RC2",
     commands    ++= Seq(buildGame, runGame)
   )
   .settings(

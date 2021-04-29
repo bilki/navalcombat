@@ -1,17 +1,14 @@
 package com.lambdarat.navalcombat.scenes
 
-import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.*
+import com.lambdarat.navalcombat.assets.Assets
+
 import indigo.*
-import indigo.scenes.Lens
-import indigo.scenes.Scene
-import indigo.scenes.SceneName
-import indigo.shared.events.EventFilters
-import indigo.shared.events.GlobalEvent
+import indigo.scenes.*
+import indigo.shared.events.*
+import indigo.shared.*
 import indigo.shared.scenegraph.SceneUpdateFragment
 import indigo.shared.subsystems.SubSystem
-import indigo.shared.FrameContext
-import indigo.shared.Outcome
 
 object Landing extends Scene[NavalCombatSetupData, Board, Unit]:
   def modelLens: Lens[Board, Board] = Lens.keepLatest
