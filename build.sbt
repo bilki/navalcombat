@@ -1,8 +1,9 @@
 def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
   val indigoCmd = for {
-    (compiled, _) <- Project.runTask(Compile / Keys.compile, state)
-    (fastJS, _)   <- Project.runTask(Compile / fastOptJS, compiled)
-    (indigo, _)   <- Project.runTask(indigoTask, fastJS)
+    (compiled, result) <- Project.runTask(Compile / Keys.compile, state)
+    _                  <- result.toEither.toOption
+    (fastJS, _)        <- Project.runTask(Compile / fastOptJS, compiled)
+    (indigo, _)        <- Project.runTask(indigoTask, fastJS)
   } yield indigo
 
   indigoCmd.getOrElse {
