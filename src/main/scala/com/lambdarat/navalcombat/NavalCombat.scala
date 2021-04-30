@@ -1,5 +1,6 @@
 package com.lambdarat.navalcombat
 
+import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.*
 import com.lambdarat.navalcombat.assets.*
 
@@ -11,11 +12,10 @@ import indigo.shared.events.EventFilters
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
-final case class NavalCombatSetupData(config: GameConfig)
-final case class Board()
+final case class NavalCombatSetupData(width: Int, height: Int)
 
 @JSExportTopLevel("IndigoGame")
-object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, Board, Unit]:
+object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
 
   def boot(flags: Map[String, String]): Outcome[BootResult[GameConfig]] =
     val initialScreen = GameConfig.default
@@ -27,7 +27,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, Board, U
   def initialScene(bootData: GameConfig): Option[SceneName] =
     Some(Landing.name)
 
-  def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, Board, Unit]] =
+  def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]] =
     NonEmptyList(Landing)
 
   def setup(
@@ -40,31 +40,35 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, Board, U
     val startup = maybeFont match
       case Some(font) =>
         Startup
-          .Success(NavalCombatSetupData(bootData))
+          .Success(NavalCombatSetupData(bootData.viewport.width, bootData.viewport.height))
           .addFonts(font)
       case None: Option[FontInfo] => Startup.Failure("Failed to load font")
 
     Outcome(startup)
 
-  def initialModel(startupData: NavalCombatSetupData): Outcome[Board] = Outcome(Board())
+  def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(NavalCombatModel())
 
-  def initialViewModel(startupData: NavalCombatSetupData, model: Board): Outcome[Unit] = Outcome(())
+  def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
+    Outcome(NavalCombatViewModel())
 
-  def eventFilters: EventFilters = EventFilters.FrameTickOnly
+  def eventFilters: EventFilters = EventFilters.BlockAll
 
-  def updateModel(context: FrameContext[NavalCombatSetupData], model: Board): GlobalEvent => Outcome[Board] =
+  def updateModel(
+      context: FrameContext[NavalCombatSetupData],
+      model: NavalCombatModel
+  ): GlobalEvent => Outcome[NavalCombatModel] =
     _ => Outcome(model)
 
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
-      model: Board,
-      viewModel: Unit
-  ): GlobalEvent => Outcome[Unit] =
+      model: NavalCombatModel,
+      viewModel: NavalCombatViewModel
+  ): GlobalEvent => Outcome[NavalCombatViewModel] =
     _ => Outcome(viewModel)
 
   def present(
       context: FrameContext[NavalCombatSetupData],
-      model: Board,
-      viewModel: Unit
+      model: NavalCombatModel,
+      viewModel: NavalCombatViewModel
   ): Outcome[SceneUpdateFragment] =
     Outcome(SceneUpdateFragment.empty)
