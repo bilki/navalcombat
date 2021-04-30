@@ -11,9 +11,8 @@ import indigo.shared.scenegraph.SceneUpdateFragment
 import indigo.shared.subsystems.SubSystem
 
 object Landing extends Scene[NavalCombatSetupData, Board, Unit]:
-  def modelLens: Lens[Board, Board] = Lens.keepLatest
-
-  def viewModelLens: Lens[Unit, Unit] = Lens.keepLatest
+  def modelLens: Lens[Board, Board]   = Lens.keepOriginal
+  def viewModelLens: Lens[Unit, Unit] = Lens.keepOriginal
 
   type SceneModel     = Board
   type SceneViewModel = Unit
@@ -39,12 +38,12 @@ object Landing extends Scene[NavalCombatSetupData, Board, Unit]:
       viewModel: Unit
   ): Outcome[SceneUpdateFragment] =
     val welcomeMessage = Text(
-      "Welcome to naval combat",
-      0,
-      0,
+      "Welcome to Naval Combat",
+      context.startUpData.config.viewport.width / 2,
+      context.startUpData.config.viewport.height / 2,
       1,
       Assets.ponderosaFontKey,
       Material.ImageEffects(Assets.ponderosaImgName)
-    )
+    ).alignCenter
 
     Outcome(SceneUpdateFragment.empty.addLayer(welcomeMessage))

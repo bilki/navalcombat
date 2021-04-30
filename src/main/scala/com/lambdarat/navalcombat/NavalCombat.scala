@@ -3,45 +3,46 @@ package com.lambdarat.navalcombat
 import com.lambdarat.navalcombat.scenes.*
 import com.lambdarat.navalcombat.assets.*
 
+import com.lambdarat.navalcombat.utils.given_CanEqual_Option_Option
+
 import indigo.*
 import indigo.scenes.*
 import indigo.shared.events.EventFilters
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
-final case class NavalCombatSetupData()
+final case class NavalCombatSetupData(config: GameConfig)
 final case class Board()
 
 @JSExportTopLevel("IndigoGame")
-object NavalCombat extends IndigoGame[Unit, NavalCombatSetupData, Board, Unit]:
+object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, Board, Unit]:
 
-  def boot(flags: Map[String, String]): Outcome[BootResult[Unit]] =
+  def boot(flags: Map[String, String]): Outcome[BootResult[GameConfig]] =
     val initialScreen = GameConfig.default
       .withViewport(GameViewport.at720p)
-      .withClearColor(RGBA.Blue)
+      .withClearColor(RGBA.White)
 
-    Outcome(BootResult(initialScreen, ()).withAssets(Assets.assets))
+    Outcome(BootResult(initialScreen, initialScreen).withAssets(Assets.assets))
 
-  def initialScene(bootData: Unit): Option[SceneName] =
+  def initialScene(bootData: GameConfig): Option[SceneName] =
     Some(Landing.name)
 
-  def scenes(bootData: Unit): NonEmptyList[Scene[NavalCombatSetupData, Board, Unit]] =
+  def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, Board, Unit]] =
     NonEmptyList(Landing)
 
   def setup(
-      bootData: Unit,
+      bootData: GameConfig,
       assetCollection: AssetCollection,
       dice: Dice
   ): Outcome[Startup[NavalCombatSetupData]] =
     val maybeFont = Fonts.buildFont(assetCollection)
 
-    val startup = maybeFont match {
+    val startup = maybeFont match
       case Some(font) =>
         Startup
-          .Success(NavalCombatSetupData())
+          .Success(NavalCombatSetupData(bootData))
           .addFonts(font)
-      case None => Startup.Failure("Failed to load font")
-    }
+      case None: Option[FontInfo] => Startup.Failure("Failed to load font")
 
     Outcome(startup)
 
