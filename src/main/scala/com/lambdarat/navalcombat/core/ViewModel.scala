@@ -1,3 +1,11 @@
 package com.lambdarat.navalcombat.core
 
-final case class NavalCombatViewModel()
+import indigo.Text
+import indigoextras.ui.Button
+
+final case class LandingViewModel(
+    play: Button,
+    playMessage: Text,
+    welcomeMessage: Text
+)
+final case class NavalCombatViewModel(landing: LandingViewModel)

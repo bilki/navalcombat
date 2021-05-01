@@ -49,7 +49,9 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
   def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(NavalCombatModel())
 
   def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
-    Outcome(NavalCombatViewModel())
+    Outcome(
+      NavalCombatViewModel(landing = Landing.initialLandingViewModel(startupData))
+    )
 
   def eventFilters: EventFilters = EventFilters.BlockAll
 
