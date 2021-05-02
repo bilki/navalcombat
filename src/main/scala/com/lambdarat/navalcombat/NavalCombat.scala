@@ -5,6 +5,7 @@ import com.lambdarat.navalcombat.scenes.*
 import com.lambdarat.navalcombat.assets.*
 
 import com.lambdarat.navalcombat.utils.given_CanEqual_Option_Option
+import com.lambdarat.navalcombat.utils.ExtraColors.*
 
 import indigo.*
 import indigo.scenes.*
@@ -18,7 +19,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
   def boot(flags: Map[String, String]): Outcome[BootResult[GameConfig]] =
     val initialScreen = GameConfig.default
       .withViewport(GameViewport.at720p)
-      .withClearColor(RGBA.White)
+      .withClearColor(LightGrey)
 
     Outcome(BootResult(initialScreen, initialScreen).withAssets(Assets.assets))
 
