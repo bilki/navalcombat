@@ -12,8 +12,6 @@ import indigo.shared.events.EventFilters
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
-final case class NavalCombatSetupData(width: Int, height: Int)
-
 @JSExportTopLevel("IndigoGame")
 object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
 
@@ -28,7 +26,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Some(Landing.name)
 
   def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]] =
-    NonEmptyList(Landing)
+    NonEmptyList(Landing, Combat)
 
   def setup(
       bootData: GameConfig,

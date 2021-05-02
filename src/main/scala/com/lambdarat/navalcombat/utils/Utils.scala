@@ -2,8 +2,11 @@ package com.lambdarat.navalcombat.utils
 
 import indigo.*
 
-given CanEqual[Option[_], Option[_]]   = CanEqual.derived
-given CanEqual[FrameTick, GlobalEvent] = CanEqual.derived
+import com.lambdarat.navalcombat.scenes.LandingEvents.*
+
+given CanEqual[Option[_], Option[_]]         = CanEqual.derived
+given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
+given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
 
 extension (graphic: Graphic)
   def alignCenter: Graphic = graphic.moveBy(graphic.bounds.width / 2, graphic.bounds.height / 2)

@@ -1,9 +1,10 @@
 package com.lambdarat.navalcombat.scenes
 
-import com.lambdarat.navalcombat.*
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
+import com.lambdarat.navalcombat.scenes.Combat
 import com.lambdarat.navalcombat.utils.given_CanEqual_FrameTick_GlobalEvent
+import com.lambdarat.navalcombat.utils.given_CanEqual_PlayCombat_type_GlobalEvent
 import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
@@ -17,6 +18,8 @@ import indigoextras.ui.Button
 import indigoextras.ui.ButtonAssets
 
 object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
+  import LandingEvents.*
+
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
 
   def viewModelLens: Lens[NavalCombatViewModel, LandingViewModel] =
@@ -27,7 +30,7 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
 
   def name: SceneName = SceneName("landing")
 
-  def eventFilters: EventFilters = EventFilters.FrameTickOnly
+  def eventFilters: EventFilters = EventFilters.Permissive
 
   def subSystems: Set[SubSystem] = Set.empty
 
@@ -50,7 +53,7 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
         Assets.simpleButtonGraphic.bounds.height
       ).scaleBy(4, 4).alignCenter,
       depth = Depth(2)
-    )
+    ).withUpActions(PlayCombat)
 
     val playMessage = Text(
       "PLAY",
@@ -81,6 +84,8 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
       viewModel.play.update(context.inputState.mouse).map { btn =>
         viewModel.copy(play = btn)
       }
+    case PlayCombat =>
+      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(Combat.name))
     case _ =>
       Outcome(viewModel)
 
@@ -97,3 +102,6 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
           Layer(viewModel.playMessage)
         )
     )
+
+object LandingEvents:
+  case object PlayCombat extends GlobalEvent
