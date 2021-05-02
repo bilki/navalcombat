@@ -24,12 +24,12 @@ lazy val root = project
     SbtIndigo
   )
   .settings(
-    name          := "Naval Combat",
-    description   := "Battleship single player clone",
-    organization  := "com.lambdarat",
-    version       := "0.1.0",
-    commands     ++= Seq(buildGame, runGame),
-    scalacOptions += "-language:strictEquality"
+    name           := "Naval Combat",
+    description    := "Battleship single player clone",
+    organization   := "com.lambdarat",
+    version        := "0.1.0",
+    commands      ++= Seq(buildGame, runGame),
+    scalacOptions ++= Seq("-language:strictEquality", "-source:future")
   )
   .settings(
     showCursor          := true,

@@ -2,7 +2,7 @@ package com.lambdarat.navalcombat.scenes
 
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
-import com.lambdarat.navalcombat.scenes.Combat
+import com.lambdarat.navalcombat.scenes.Placement
 import com.lambdarat.navalcombat.utils.given_CanEqual_FrameTick_GlobalEvent
 import com.lambdarat.navalcombat.utils.given_CanEqual_PlayCombat_type_GlobalEvent
 import com.lambdarat.navalcombat.utils.*
@@ -85,7 +85,7 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
         viewModel.copy(play = btn)
       }
     case PlayCombat =>
-      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(Combat.name))
+      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(Placement.name))
     case _ =>
       Outcome(viewModel)
 

@@ -27,7 +27,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Some(Landing.name)
 
   def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]] =
-    NonEmptyList(Landing, Combat)
+    NonEmptyList(Landing, Placement)
 
   def setup(
       bootData: GameConfig,
@@ -48,9 +48,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
   def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(NavalCombatModel())
 
   def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
-    Outcome(
-      NavalCombatViewModel(landing = Landing.initialLandingViewModel(startupData))
-    )
+    Outcome(NavalCombatViewModel(landing = Landing.initialLandingViewModel(startupData)))
 
   def eventFilters: EventFilters = EventFilters.BlockAll
 

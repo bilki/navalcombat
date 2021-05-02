@@ -4,7 +4,7 @@ import indigo.*
 
 import com.lambdarat.navalcombat.scenes.LandingEvents.*
 
-given CanEqual[Option[_], Option[_]]         = CanEqual.derived
+given CanEqual[Option[?], Option[?]]         = CanEqual.derived
 given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
 given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
 

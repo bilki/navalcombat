@@ -12,7 +12,7 @@ import indigo.shared.events.*
 import indigo.shared.scenegraph.SceneUpdateFragment
 import indigo.shared.subsystems.SubSystem
 
-object Combat extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
+object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel]             = Lens.keepOriginal
   def viewModelLens: Lens[NavalCombatViewModel, NavalCombatViewModel] = Lens.keepOriginal
 
@@ -42,7 +42,7 @@ object Combat extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatV
       viewModel: NavalCombatViewModel
   ): Outcome[SceneUpdateFragment] =
     val combatMessage = Text(
-      "Combat Screen",
+      "Placement Screen",
       x = context.startUpData.width / 2,
       y = context.startUpData.height / 2,
       1,
