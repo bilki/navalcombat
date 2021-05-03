@@ -11,19 +11,33 @@ import indigo.shared.*
 import indigo.shared.events.*
 import indigo.shared.scenegraph.SceneUpdateFragment
 import indigo.shared.subsystems.SubSystem
+import indigo.shared.temporal.*
+
+import indigoextras.geometry.*
+import indigoextras.subsystems.*
 
 object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
-  def modelLens: Lens[NavalCombatModel, NavalCombatModel]             = Lens.keepOriginal
-  def viewModelLens: Lens[NavalCombatViewModel, NavalCombatViewModel] = Lens.keepOriginal
+  def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
+
+  def viewModelLens: Lens[NavalCombatViewModel, PlacementViewModel] =
+    Lens(_.placement, (ncvm, pvm) => ncvm.copy(placement = pvm))
 
   type SceneModel     = NavalCombatModel
-  type SceneViewModel = NavalCombatViewModel
+  type SceneViewModel = PlacementViewModel
 
   def name: SceneName = SceneName("combat")
 
   def eventFilters: EventFilters = EventFilters.Permissive
 
   def subSystems: Set[SubSystem] = Set.empty
+
+  val placementMessage = Text(
+    "Placement Screen",
+    Assets.ponderosaFontKey,
+    Material.ImageEffects(Assets.ponderosaImgName)
+  ).alignCenter
+
+  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(2)))
 
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
@@ -33,21 +47,23 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
-      viewModel: NavalCombatViewModel
-  ): GlobalEvent => Outcome[NavalCombatViewModel] = _ => Outcome(viewModel)
+      viewModel: PlacementViewModel
+  ): GlobalEvent => Outcome[PlacementViewModel] =
+    case sc: SceneEvent.SceneChange =>
+      Outcome(viewModel.copy(startTime = sc.at))
+    case _ =>
+      Outcome(viewModel)
 
   def present(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
-      viewModel: NavalCombatViewModel
+      viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
-    val combatMessage = Text(
-      "Placement Screen",
-      x = context.startUpData.width / 2,
-      y = context.startUpData.height / 2,
-      1,
-      Assets.ponderosaFontKey,
-      Material.ImageEffects(Assets.ponderosaImgName)
-    ).alignCenter
+    val timeSinceEnter   = context.running - viewModel.startTime
+    val placeMsgShowTime = Seconds(1)
 
-    Outcome(SceneUpdateFragment.empty.addLayer(combatMessage))
+    val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
+
+    Outcome(SceneUpdateFragment(placeMessage))
+
+case object PaintGrid extends GlobalEvent

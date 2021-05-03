@@ -1,6 +1,7 @@
 package com.lambdarat.navalcombat.core
 
-import indigo.Text
+import indigo.*
+import indigo.shared.temporal.Signal
 import indigoextras.ui.Button
 
 final case class LandingViewModel(
@@ -8,4 +9,10 @@ final case class LandingViewModel(
     playMessage: Text,
     welcomeMessage: Text
 )
-final case class NavalCombatViewModel(landing: LandingViewModel)
+
+final case class PlacementViewModel(
+    startTime: Seconds,
+    placeMsgSignal: Signal[Point]
+)
+
+final case class NavalCombatViewModel(landing: LandingViewModel, placement: PlacementViewModel)

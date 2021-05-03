@@ -35,14 +35,13 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
   def subSystems: Set[SubSystem] = Set.empty
 
   def initialLandingViewModel(setupData: NavalCombatSetupData): LandingViewModel =
+    val center = Point(setupData.width / 2, setupData.height / 2)
+
     val welcomeMessage = Text(
       "Welcome to Naval Combat",
-      x = setupData.width / 2,
-      y = setupData.height / 2,
-      1,
       Assets.ponderosaFontKey,
       Material.ImageEffects(Assets.ponderosaImgName)
-    ).alignCenter
+    ).withPosition(center).alignCenter
 
     val playButton = Button(
       buttonAssets = Assets.simpleButtonAssets,
@@ -57,11 +56,11 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
 
     val playMessage = Text(
       "PLAY",
-      x = playButton.bounds.center.x,
-      y = playButton.bounds.center.y - 10,
-      2,
       Assets.ponderosaFontKey,
       Material.ImageEffects(Assets.ponderosaImgName)
+    ).moveTo(
+      playButton.bounds.center.x,
+      playButton.bounds.center.y - 10
     ).alignCenter
 
     LandingViewModel(
@@ -95,12 +94,11 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
       viewModel: LandingViewModel
   ): Outcome[SceneUpdateFragment] =
     Outcome(
-      SceneUpdateFragment.empty
-        .addLayer(
-          viewModel.welcomeMessage,
-          viewModel.play.draw,
-          viewModel.playMessage
-        )
+      SceneUpdateFragment(
+        viewModel.welcomeMessage,
+        viewModel.play.draw,
+        viewModel.playMessage
+      )
     )
 
 object LandingEvents:
