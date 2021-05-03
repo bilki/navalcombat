@@ -96,10 +96,10 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
   ): Outcome[SceneUpdateFragment] =
     Outcome(
       SceneUpdateFragment.empty
-        .addLayers(
-          Layer(viewModel.welcomeMessage),
-          Layer(viewModel.play.draw),
-          Layer(viewModel.playMessage)
+        .addLayer(
+          viewModel.welcomeMessage,
+          viewModel.play.draw,
+          viewModel.playMessage
         )
     )
 

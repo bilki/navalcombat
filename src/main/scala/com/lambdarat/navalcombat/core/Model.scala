@@ -12,6 +12,7 @@ object ShipSize:
 
 enum Ship(val size: ShipSize):
   case Destroyer  extends Ship(ShipSize(2))
+  case Submarine  extends Ship(ShipSize(3))
   case Cruiser    extends Ship(ShipSize(3))
   case Battleship extends Ship(ShipSize(4))
   case Carrier    extends Ship(ShipSize(5))
