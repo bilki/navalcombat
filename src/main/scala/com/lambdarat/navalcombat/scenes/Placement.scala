@@ -37,7 +37,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
     Material.ImageEffects(Assets.ponderosaImgName)
   ).alignCenter
 
-  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(2)))
+  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
 
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
@@ -60,7 +60,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
     val timeSinceEnter   = context.running - viewModel.startTime
-    val placeMsgShowTime = Seconds(1)
+    val placeMsgShowTime = Seconds(0.75)
 
     val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
 
