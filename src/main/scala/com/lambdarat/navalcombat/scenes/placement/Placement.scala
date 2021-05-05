@@ -1,8 +1,9 @@
-package com.lambdarat.navalcombat.scenes
+package com.lambdarat.navalcombat.scenes.placement
 
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
 import com.lambdarat.navalcombat.assets.Assets
-import com.lambdarat.navalcombat.utils.given_CanEqual_FrameTick_GlobalEvent
+import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
@@ -39,6 +40,14 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
   val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
 
+  def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
+    val center = Point(setupData.width / 2, setupData.height / 2)
+
+    PlacementViewModel(
+      startTime = Seconds(Int.MaxValue),
+      placeMsgSignal = Placement.movePlacementMsg.run(center)
+    )
+
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
@@ -59,11 +68,6 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
-    val timeSinceEnter   = context.running - viewModel.startTime
-    val placeMsgShowTime = Seconds(0.75)
-
-    val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
-
-    Outcome(SceneUpdateFragment(placeMessage))
+    Outcome(PlacementView.draw(context.running, viewModel, placementMessage))
 
 case object PaintGrid extends GlobalEvent

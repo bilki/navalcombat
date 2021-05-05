@@ -1,10 +1,11 @@
 package com.lambdarat.navalcombat
 
 import com.lambdarat.navalcombat.core.*
-import com.lambdarat.navalcombat.scenes.*
+import com.lambdarat.navalcombat.scenes.landing.*
+import com.lambdarat.navalcombat.scenes.placement.*
 import com.lambdarat.navalcombat.assets.*
 
-import com.lambdarat.navalcombat.utils.given_CanEqual_Option_Option
+import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.ExtraColors.*
 
 import indigo.*
@@ -48,15 +49,10 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
   def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(NavalCombatModel())
 
   def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
-    val center = Point(startupData.width / 2, startupData.height / 2)
-
     Outcome(
       NavalCombatViewModel(
         landing = Landing.initialLandingViewModel(startupData),
-        placement = PlacementViewModel(
-          startTime = Seconds(Int.MaxValue),
-          placeMsgSignal = Placement.movePlacementMsg.run(center)
-        )
+        placement = Placement.initialPlacementViewModel(startupData)
       )
     )
 

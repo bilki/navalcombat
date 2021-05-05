@@ -1,11 +1,10 @@
-package com.lambdarat.navalcombat.scenes
+package com.lambdarat.navalcombat.scenes.landing
 
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
-import com.lambdarat.navalcombat.scenes.Placement
-import com.lambdarat.navalcombat.utils.given_CanEqual_FrameTick_GlobalEvent
-import com.lambdarat.navalcombat.utils.given_CanEqual_PlayCombat_type_GlobalEvent
+import com.lambdarat.navalcombat.scenes.placement.Placement
 import com.lambdarat.navalcombat.utils.*
+import com.lambdarat.navalcombat.utils.given
 
 import indigo.*
 import indigo.scenes.*
@@ -17,9 +16,9 @@ import indigoextras.effectmaterials.*
 import indigoextras.ui.Button
 import indigoextras.ui.ButtonAssets
 
-object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
-  import LandingEvents.*
+import LandingEvents.*
 
+object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
 
   def viewModelLens: Lens[NavalCombatViewModel, LandingViewModel] =

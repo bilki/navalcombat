@@ -1,9 +1,9 @@
 package com.lambdarat.navalcombat.utils
 
+import com.lambdarat.navalcombat.scenes.landing.LandingEvents.*
+
 import indigo.*
 import indigo.Material.Bitmap
-
-import com.lambdarat.navalcombat.scenes.LandingEvents.*
 
 given CanEqual[Option[?], Option[?]]         = CanEqual.derived
 given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
