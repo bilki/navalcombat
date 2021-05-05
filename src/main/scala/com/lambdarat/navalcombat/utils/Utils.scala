@@ -1,6 +1,7 @@
 package com.lambdarat.navalcombat.utils
 
 import indigo.*
+import indigo.Material.Bitmap
 
 import com.lambdarat.navalcombat.scenes.LandingEvents.*
 
@@ -10,6 +11,8 @@ given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
 
 extension (graphic: Graphic)
   def alignCenter: Graphic = graphic.moveBy(graphic.bounds.width / 2, graphic.bounds.height / 2)
+
+extension (bm: Bitmap) def toZeroGraphic: Graphic = Graphic(0, 0, bm)
 
 extension (rectangle: Rectangle)
   // Beware!! This function is not commutative with others like scaleBy!

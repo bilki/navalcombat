@@ -51,7 +51,7 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
         Assets.simpleButtonGraphic.bounds.width,
         Assets.simpleButtonGraphic.bounds.height
       ).scaleBy(4, 4).alignCenter,
-      depth = Depth(2)
+      depth = Depth(1)
     ).withUpActions(PlayCombat)
 
     val playMessage = Text(

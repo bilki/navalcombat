@@ -1,5 +1,7 @@
 package com.lambdarat.navalcombat.assets
 
+import com.lambdarat.navalcombat.utils.*
+
 import indigo.*
 import indigoextras.ui.*
 
@@ -19,15 +21,17 @@ object Assets:
   val cellsName = AssetName("cells")
   val cellsImg  = AssetType.Image(simpleButtonName, AssetPath(s"$baseUrl/two_simple_buttons.png"))
 
-  val emptyCell  = Graphic(64, 64, Material.Bitmap(cellsName))
-  val missCell   = Graphic(64, 64, Material.Bitmap(cellsName)).withCrop(0, 64, 64, 64)
-  val sunkCell   = Graphic(64, 64, Material.Bitmap(cellsName)).withCrop(64, 0, 64, 64)
-  val hitCell    = Graphic(64, 64, Material.Bitmap(cellsName)).withCrop(64, 64, 64, 64)
-  val cruiser    = Graphic(192, 64, Material.Bitmap(cellsName)).withCrop(128, 0, 192, 64)
-  val submarine  = Graphic(192, 64, Material.Bitmap(cellsName)).withCrop(128, 64, 192, 64)
-  val carrier    = Graphic(320, 64, Material.Bitmap(cellsName)).withCrop(0, 128, 320, 64)
-  val battleship = Graphic(256, 64, Material.Bitmap(cellsName)).withCrop(0, 192, 256, 64)
-  val destroyer  = Graphic(128, 64, Material.Bitmap(cellsName)).withCrop(0, 256, 128, 64)
+  private val cellBitmap = Material.Bitmap(cellsName).toZeroGraphic
+
+  val emptyCell  = cellBitmap.withCrop(0, 0, 64, 64)
+  val missCell   = cellBitmap.withCrop(0, 64, 64, 64)
+  val sunkCell   = cellBitmap.withCrop(64, 0, 64, 64)
+  val hitCell    = cellBitmap.withCrop(64, 64, 64, 64)
+  val cruiser    = cellBitmap.withCrop(128, 0, 192, 64)
+  val submarine  = cellBitmap.withCrop(128, 64, 192, 64)
+  val carrier    = cellBitmap.withCrop(0, 128, 320, 64)
+  val battleship = cellBitmap.withCrop(0, 192, 256, 64)
+  val destroyer  = cellBitmap.withCrop(0, 256, 128, 64)
 
   val simpleButtonGraphic =
     Graphic(34, 10, Material.Bitmap(simpleButtonName).toImageEffects.withSaturation(0))
