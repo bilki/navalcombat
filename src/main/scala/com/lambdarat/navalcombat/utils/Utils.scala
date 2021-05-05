@@ -20,6 +20,11 @@ extension (rectangle: Rectangle)
   def scaleBy(x: Double, y: Double): Rectangle =
     rectangle.copy(size = Point((rectangle.width * x).toInt, (rectangle.height.toDouble * y).toInt))
 
+extension [A](signal: Signal[A])
+
+  def when[B](pred: A => Boolean, positive: B, negative: B): Signal[B] =
+    signal.map(s => if pred(s) then positive else negative)
+
 object ExtraColors:
   val LightGrey: RGBA = RGBA.fromColorInts(225, 225, 225)
   val Grey: RGBA      = RGBA.fromColorInts(150, 150, 150)

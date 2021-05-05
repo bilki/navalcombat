@@ -2,6 +2,7 @@ package com.lambdarat.navalcombat.scenes.placement
 
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.PlacementViewModel
+import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.Material.Bitmap
@@ -19,7 +20,7 @@ object PlacementView:
 
     val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
 
-    val showGrid = Signal.Time.map(time => if time >= showGridTime then 1.0 else 0.0)
+    val showGrid = Signal.Time.when(_ >= showGridTime, 1.0, 0.0)
     val grid = viewModel.gridPoints.map(position =>
       Assets.emptyCell.withPosition(position).modifyMaterial { case bm: Bitmap =>
         bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
