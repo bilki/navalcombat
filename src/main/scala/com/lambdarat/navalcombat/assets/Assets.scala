@@ -19,7 +19,7 @@ object Assets:
   val simpleButtonImg  = AssetType.Image(simpleButtonName, AssetPath(s"$baseUrl/two_simple_buttons.png"))
 
   val cellsName = AssetName("cells")
-  val cellsImg  = AssetType.Image(simpleButtonName, AssetPath(s"$baseUrl/two_simple_buttons.png"))
+  val cellsImg  = AssetType.Image(cellsName, AssetPath(s"$baseUrl/cells.png"))
 
   private val cellBitmap = Material.Bitmap(cellsName).toZeroGraphic
 
