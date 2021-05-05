@@ -10,7 +10,11 @@ given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
 given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
 
 extension (graphic: Graphic)
-  def alignCenter: Graphic = graphic.moveBy(graphic.bounds.width / 2, graphic.bounds.height / 2)
+  def scaledHeight: Int    = (graphic.bounds.height * graphic.scale.y).toInt
+  def scaledWidth: Int     = (graphic.bounds.width * graphic.scale.x).toInt
+  def alignCenter: Graphic = graphic.moveBy(-graphic.scaledWidth / 2, graphic.scaledHeight / 2)
+  def alignRight: Graphic =
+    graphic.moveTo(graphic.position.x - (graphic.bounds.width * graphic.scale.x).toInt, graphic.bounds.y)
 
 extension (bm: Bitmap) def toZeroGraphic: Graphic = Graphic(0, 0, bm)
 

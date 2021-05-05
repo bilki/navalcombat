@@ -55,6 +55,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       yield Point(i + gridIndent, j + 70)
 
     PlacementViewModel(
+      bounds = Rectangle(0, 0, setupData.width, setupData.height),
       startTime = Seconds(Int.MaxValue),
       gridPoints = gridPoints.toList,
       placeMsgSignal = Placement.movePlacementMsg.run(center)
