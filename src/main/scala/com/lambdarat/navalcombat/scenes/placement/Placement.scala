@@ -43,8 +43,20 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
     val center = Point(setupData.width / 2, setupData.height / 2)
 
+    val cellWidth  = 63
+    val gridWidth  = 630
+    val gridIndent = (setupData.width - gridWidth) / 2
+
+    // 10x10 grid positions
+    val gridPoints =
+      for
+        i <- 0 until gridWidth by cellWidth
+        j <- 0 until gridWidth by cellWidth
+      yield Point(i + gridIndent, j + 70)
+
     PlacementViewModel(
       startTime = Seconds(Int.MaxValue),
+      gridPoints = gridPoints.toList,
       placeMsgSignal = Placement.movePlacementMsg.run(center)
     )
 

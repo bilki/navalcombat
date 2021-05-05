@@ -4,15 +4,9 @@ import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.PlacementViewModel
 
 import indigo.*
+import indigo.Material.Bitmap
 
 object PlacementView:
-
-  // 10x10 grid positions
-  val gridPoints =
-    for
-      i <- 0 until 640 by 64
-      j <- 0 until 640 by 64
-    yield Point(i, j)
 
   // Storyboard:
   //   1. Show message for 0.75 seconds
@@ -21,9 +15,15 @@ object PlacementView:
   def draw(running: Seconds, viewModel: PlacementViewModel, placementMessage: Text): SceneUpdateFragment =
     val timeSinceEnter   = running - viewModel.startTime
     val placeMsgShowTime = Seconds(0.75)
-
-    val cells = gridPoints.map(Assets.emptyCell.withPosition)
+    val showGridTime     = placeMsgShowTime + Seconds(1)
 
     val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
 
-    SceneUpdateFragment(cells*)
+    val showGrid = Signal.Time.map(time => if time >= showGridTime then 1.0 else 0.0)
+    val grid = viewModel.gridPoints.map(position =>
+      Assets.emptyCell.withPosition(position).modifyMaterial { case bm: Bitmap =>
+        bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
+      }
+    )
+
+    SceneUpdateFragment(placeMessage :: grid)
