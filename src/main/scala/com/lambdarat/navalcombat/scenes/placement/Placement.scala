@@ -41,18 +41,8 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
   val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
 
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
-    val center = Point(setupData.width / 2, setupData.height / 2)
-
-    val cellWidth  = 63
-    val gridWidth  = 630
-    val gridIndent = (setupData.width - gridWidth) / 2
-
-    // 10x10 grid positions
-    val gridPoints =
-      for
-        i <- 0 until gridWidth by cellWidth
-        j <- 0 until gridWidth by cellWidth
-      yield Point(i + gridIndent, j + 80)
+    val center     = Point(setupData.width / 2, setupData.height / 2)
+    val gridPoints = PlacementView.computeGridPoints(setupData.width, setupData.height)
 
     PlacementViewModel(
       bounds = Rectangle(0, 0, setupData.width, setupData.height),

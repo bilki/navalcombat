@@ -9,25 +9,50 @@ import indigo.Material.Bitmap
 
 object PlacementView:
 
+  private val NUMBER_OF_LETTERS    = 10
+  private val FIRST_LETTER         = 'A'
+  private val LAST_LETTER          = 'J'
+  private val NUMBER_OF_NUMBERS    = 10
+  private val LETTER_MARGIN        = 16
+  private val NUMBER_MARGIN        = 24
+  private val BOATS_MARGIN         = 20
+  private val GRID_TOP_MARGIN      = 80
+  private val BOAT_SPACING         = 50
+  private val GRID_WIDTH           = 630
+  private val CELL_WIDTH           = 63
+  private val DRAG_AND_DROP_HEIGHT = 60
+
+  def computeGridPoints(width: Int, height: Int): List[Point] =
+    val center = Point(width / 2, height / 2)
+
+    val gridIndent = (width - GRID_WIDTH) / 2
+
+    // 10x10 grid positions
+    val gridPoints =
+      for
+        i <- 0 until GRID_WIDTH by CELL_WIDTH
+        j <- 0 until GRID_WIDTH by CELL_WIDTH
+      yield Point(i + gridIndent, j + GRID_TOP_MARGIN)
+
+    gridPoints.toList
+
   // Storyboard:
   //   1. Show message for 0.75 seconds
   //   2. Move message to the top in 1 second
   //   3. After 1.75 seconds, paint the grid and the dragable ships
-  def draw(running: Seconds, viewModel: PlacementViewModel, placementMessage: Text): SceneUpdateFragment =
-    val timeSinceEnter   = running - viewModel.startTime
+  def draw(current: Seconds, viewModel: PlacementViewModel, placementMessage: Text): SceneUpdateFragment =
+    val timeSinceEnter   = current - viewModel.startTime
     val placeMsgShowTime = Seconds(0.75)
     val showGridTime     = placeMsgShowTime + Seconds(1)
 
     val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
 
-    val showGrid = Signal.Time.when(_ >= showGridTime, 1.0, 0.0)
+    val showGrid = Signal.Time.when(_ >= showGridTime, positive = 1.0, negative = 0.0)
     val grid = viewModel.gridPoints.map(position =>
       emptyCell.withPosition(position).modifyMaterial { case bm: Bitmap =>
         bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
     )
-
-    val gridHeight = grid.head.position.y
 
     def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text =
       placementMessage
@@ -42,21 +67,34 @@ object PlacementView:
         .alignRight
 
     // Row letters
-    val gridLetters = viewModel.gridPoints.take(10).zip('A' to 'J').map { case (position, letter) =>
-      postGridMessage(letter.toString, position.withX(position.x - 16).withY(position.y + 16))
-    }
+    val gridLetters =
+      viewModel.gridPoints.take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map { case (position, letter) =>
+        postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
+      }
 
     // Column numbers
     val gridNumbers =
-      viewModel.gridPoints.zipWithIndex.filter(_._2 % 10 == 0).zip(1 to 10).map { case ((position, _), number) =>
-        postGridMessage(number.toString, position.withX(position.x + 48).withY(position.y - 24))
+      viewModel.gridPoints.zipWithIndex.filter(_._2 % NUMBER_OF_NUMBERS == 0).zip(1 to NUMBER_OF_NUMBERS).map {
+        case ((position, _), number) =>
+          postGridMessage(
+            number.toString,
+            position.withX(position.x + NUMBER_MARGIN * 2).withY(position.y - NUMBER_MARGIN)
+          )
       }
 
+    val GRID_HEIGHT = grid.head.position.y
+
     val dragAndDropText =
-      postGridMessage("Drag and drop\nPress R to rotate", Point(viewModel.bounds.width - 20, gridHeight), RGBA.Red)
+      postGridMessage(
+        "Drag and drop\nPress R to rotate",
+        Point(viewModel.bounds.width - BOATS_MARGIN, GRID_HEIGHT),
+        RGBA.Red
+      )
 
     val boatAlignPoints =
-      (0 until 250 by 50).map(height => Point(viewModel.bounds.width - 20, gridHeight + 60 + height))
+      (0 until BOAT_SPACING * 5 by BOAT_SPACING).map(height =>
+        Point(viewModel.bounds.width - BOATS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
+      )
 
     val boats = List(destroyer, submarine, cruiser, battleship, carrier)
       .zip(boatAlignPoints)
