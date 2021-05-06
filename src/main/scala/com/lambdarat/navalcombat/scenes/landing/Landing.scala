@@ -71,7 +71,9 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
-  ): GlobalEvent => Outcome[NavalCombatModel] = _ => Outcome(model)
+  ): GlobalEvent => Outcome[NavalCombatModel] =
+    case PlayCombat => Outcome(model.copy(board = Board.empty))
+    case _          => Outcome(model)
 
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
