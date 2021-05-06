@@ -52,7 +52,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       for
         i <- 0 until gridWidth by cellWidth
         j <- 0 until gridWidth by cellWidth
-      yield Point(i + gridIndent, j + 70)
+      yield Point(i + gridIndent, j + 80)
 
     PlacementViewModel(
       bounds = Rectangle(0, 0, setupData.width, setupData.height),

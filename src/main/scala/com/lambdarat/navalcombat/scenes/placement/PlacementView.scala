@@ -29,20 +29,34 @@ object PlacementView:
 
     val gridHeight = grid.head.position.y
 
-    val dragAndDropText =
+    def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text =
       placementMessage
-        .withText("Drag and drop\nPress R to rotate")
-        .withPosition(Point(viewModel.bounds.width - 20, gridHeight))
+        .withText(msg)
+        .withPosition(position)
         .withMaterial(
           Material
             .ImageEffects(ponderosaImgName)
-            .withOverlay(Fill.Color(RGBA.Red))
+            .withOverlay(Fill.Color(color))
             .withAlpha(showGrid.at(timeSinceEnter))
         )
         .alignRight
 
+    // Row letters
+    val gridLetters = viewModel.gridPoints.take(10).zip('A' to 'J').map { case (position, letter) =>
+      postGridMessage(letter.toString, position.withX(position.x - 16).withY(position.y + 16))
+    }
+
+    // Column numbers
+    val gridNumbers =
+      viewModel.gridPoints.zipWithIndex.filter(_._2 % 10 == 0).zip(1 to 10).map { case ((position, _), number) =>
+        postGridMessage(number.toString, position.withX(position.x + 48).withY(position.y - 24))
+      }
+
+    val dragAndDropText =
+      postGridMessage("Drag and drop\nPress R to rotate", Point(viewModel.bounds.width - 20, gridHeight), RGBA.Red)
+
     val boatAlignPoints =
-      (0 until 160 by 32).map(height => Point(viewModel.bounds.width - 20, gridHeight + 60 + height))
+      (0 until 250 by 50).map(height => Point(viewModel.bounds.width - 20, gridHeight + 60 + height))
 
     val boats = List(destroyer, submarine, cruiser, battleship, carrier)
       .zip(boatAlignPoints)
@@ -51,4 +65,4 @@ object PlacementView:
         bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       })
 
-    SceneUpdateFragment(dragAndDropText :: placeMessage :: grid ++ boats)
+    SceneUpdateFragment(dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ boats)
