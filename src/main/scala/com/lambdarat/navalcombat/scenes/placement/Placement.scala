@@ -16,6 +16,7 @@ import indigo.shared.temporal.*
 
 import indigoextras.geometry.*
 import indigoextras.subsystems.*
+import indigoextras.trees.QuadTree
 
 object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
@@ -46,9 +47,10 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
     PlacementViewModel(
       bounds = Rectangle(0, 0, setupData.width, setupData.height),
-      startTime = Seconds(Int.MaxValue),
+      startTime = Seconds.zero,
       gridPoints = gridPoints.toList,
-      placeMsgSignal = Placement.movePlacementMsg.run(center)
+      placeMsgSignal = Placement.movePlacementMsg.run(center),
+      grid = QuadTree.empty[CellPosition](100, 100)
     )
 
   def updateModel(
@@ -61,8 +63,8 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
-    case sc: SceneEvent.SceneChange =>
-      Outcome(viewModel.copy(startTime = sc.at))
+    case PaintGrid =>
+      Outcome(viewModel.copy(startTime = context.running))
     case _ =>
       Outcome(viewModel)
 
@@ -74,3 +76,5 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
     Outcome(PlacementView.draw(context.running, viewModel, placementMessage))
 
 case object PaintGrid extends GlobalEvent
+
+given CanEqual[PaintGrid.type, GlobalEvent] = CanEqual.derived
