@@ -12,7 +12,7 @@ extension (x: XCoord)
   def +(dx: Int): XCoord = XCoord(x + dx)
 
 object XCoord:
-  private[core] def apply(x: Int): XCoord = x
+  def apply(x: Int): XCoord = x
 given Conversion[XCoord, Int] = identity
 
 // Y is the vertical axis
@@ -24,7 +24,7 @@ extension (y: YCoord)
   def +(dy: Int): YCoord = YCoord(y + dy)
 
 object YCoord:
-  private[core] def apply(y: Int): YCoord = y
+  def apply(y: Int): YCoord = y
 given Conversion[YCoord, Int] = identity
 
 final case class Coord(x: XCoord, y: YCoord)
