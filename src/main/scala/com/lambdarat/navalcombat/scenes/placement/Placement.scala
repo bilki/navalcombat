@@ -43,9 +43,9 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
   val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
 
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
-    val center     = Point(setupData.width / 2, setupData.height / 2)
-    val gridPoints = PlacementView.computeGridPoints(setupData.width, setupData.height)
-    val boats      = PlacementView.computeBoats(setupData.width)
+    val center       = Point(setupData.width / 2, setupData.height / 2)
+    val gridPoints   = PlacementView.computeGridPoints(setupData.width, setupData.height)
+    val sidebarShips = PlacementView.computeSidebarShips(setupData.width)
 
     PlacementViewModel(
       bounds = Rectangle(0, 0, setupData.width, setupData.height),
@@ -53,7 +53,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       gridPoints = gridPoints.toList,
       placeMsgSignal = Placement.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](100, 100),
-      boats = boats,
+      sidebarShips = sidebarShips,
       dragging = None
     )
 
@@ -81,14 +81,23 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
     case FrameTick =>
       val nextDraggingShip = (context.mouse.mousePressed, context.mouse.mouseReleased, viewModel.dragging) match
         case (true, false, None) =>
-          viewModel.boats.find { case SidebarShip(shipType, shipGraphic) =>
+          viewModel.sidebarShips.find { case SidebarShip(shipType, shipGraphic) =>
             context.mouse.wasMouseDownWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
           }.map(sbs =>
-            sbs.copy(shipGraphic = sbs.shipGraphic.withScale(Vector2(1.0, 1.0)).centerAt(context.mouse.position))
+            val draggedSidebarShip =
+              sbs.copy(shipGraphic = sbs.shipGraphic.withScale(Vector2(1.0, 1.0)).centerAt(context.mouse.position))
+            DraggableShip(draggedSidebarShip, Rotation.Horizontal)
           )
-        case (false, false, Some(sbs))           => Some(sbs.copy(shipGraphic = sbs.shipGraphic.centerAt(context.mouse.position)))
-        case (false, true, _: Some[SidebarShip]) => None
-        case _                                   => viewModel.dragging
+        case (false, false, Some(dragged)) =>
+          val sbs = dragged.sidebarShip
+          val newRotation =
+            if context.keyboard.keysAreUp(Key.KEY_R) then dragged.rotation.reverse else dragged.rotation
+          val draggedSidebarShip =
+            sbs.copy(shipGraphic = sbs.shipGraphic.rotateTo(newRotation.angle).centerAt(context.mouse.position))
+
+          Some(DraggableShip(draggedSidebarShip, newRotation))
+        case (false, true, _: Some[DraggableShip]) => None
+        case _                                     => viewModel.dragging
 
       Outcome(viewModel.copy(dragging = nextDraggingShip))
     case _ =>

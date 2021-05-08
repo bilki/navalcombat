@@ -6,6 +6,13 @@ import indigo.*
 import indigo.shared.temporal.Signal
 import indigoextras.ui.Button
 
+extension (rotation: Rotation)
+
+  def angle: Radians =
+    rotation match
+      case Rotation.Horizontal => Radians.zero
+      case Rotation.Vertical   => Radians.PIby2
+
 final case class LandingViewModel(
     play: Button,
     playMessage: Text,

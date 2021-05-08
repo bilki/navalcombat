@@ -39,7 +39,7 @@ object PlacementView:
 
     gridPoints.toList
 
-  def computeBoats(width: Int): List[SidebarShip] =
+  def computeSidebarShips(width: Int): List[SidebarShip] =
     val boatAlignPoints =
       (0 until BOAT_SPACING * 5 by BOAT_SPACING).map(height =>
         Point(width - BOATS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
@@ -110,9 +110,9 @@ object PlacementView:
         RGBA.Red
       )
 
-    val sidebarBoats = viewModel.boats.map { case SidebarShip(shipType, shipGraphic) =>
+    val sidebarBoats = viewModel.sidebarShips.map { case SidebarShip(shipType, shipGraphic) =>
       shipGraphic.modifyMaterial { case bm: Bitmap =>
-        if viewModel.dragging.exists(_.shipType == shipType) then bm.toImageEffects.withAlpha(0.0)
+        if viewModel.dragging.exists(_.sidebarShip.shipType == shipType) then bm.toImageEffects.withAlpha(0.0)
         else bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
     }
@@ -120,7 +120,7 @@ object PlacementView:
     val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarBoats
 
     val sceneNodes = viewModel.dragging match
-      case Some(SidebarShip(_, shipGraphic)) => shipGraphic :: basicPlacementSceneNodes
-      case None                              => basicPlacementSceneNodes
+      case Some(DraggableShip(SidebarShip(_, shipGraphic), _)) => shipGraphic :: basicPlacementSceneNodes
+      case None                                                => basicPlacementSceneNodes
 
     SceneUpdateFragment(sceneNodes)

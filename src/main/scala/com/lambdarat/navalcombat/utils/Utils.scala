@@ -9,10 +9,28 @@ given CanEqual[Option[?], Option[?]]         = CanEqual.derived
 given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
 given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
 
+private[utils] val PIby3q = Radians(Math.PI * 1.5)
+
 extension (graphic: Graphic)
-  def scaledHeight: Int    = (graphic.bounds.height * graphic.scale.y).toInt
-  def scaledWidth: Int     = (graphic.bounds.width * graphic.scale.x).toInt
-  def alignCenter: Graphic = graphic.moveBy(-graphic.scaledWidth / 2, -graphic.scaledHeight / 2)
+  def scaledHeight: Int = (graphic.bounds.height * graphic.scale.y).toInt
+  def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
+  def alignCenter: Graphic =
+    val rotationWidth =
+      Math.abs(Math.cos(graphic.rotation.value) * graphic.bounds.width) +
+        Math.abs(Math.sin(graphic.rotation.value) * graphic.bounds.height)
+    val rotationHeight =
+      Math.abs(Math.sin(graphic.rotation.value) * graphic.bounds.width) +
+        Math.abs(Math.cos(graphic.rotation.value) * graphic.bounds.height)
+    val xTranslation =
+      if graphic.rotation.value >= Radians.PIby2.value && graphic.rotation.value < PIby3q.value then
+        (rotationWidth / 2).toInt
+      else -(rotationWidth / 2).toInt
+    val yTranslation =
+      if graphic.rotation.value >= Radians.PI.value && graphic.rotation.value < Radians.`2PI`.value then
+        (rotationHeight / 2).toInt
+      else -(rotationHeight / 2).toInt
+
+    graphic.moveBy(xTranslation, yTranslation)
   def alignRight: Graphic =
     graphic.moveTo(graphic.position.x - (graphic.bounds.width * graphic.scale.x).toInt, graphic.bounds.y)
   def centerAt(position: Point): Graphic = graphic.moveTo(position).alignCenter

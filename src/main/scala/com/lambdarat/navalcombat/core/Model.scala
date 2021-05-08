@@ -57,6 +57,13 @@ enum Rotation:
   case Horizontal
   case Vertical
 
+extension (rotation: Rotation)
+
+  def reverse: Rotation =
+    rotation match
+      case Rotation.Horizontal => Rotation.Vertical
+      case Rotation.Vertical   => Rotation.Horizontal
+
 given CanEqual[Rotation, Rotation] = CanEqual.derived
 
 final case class Board(cells: ArraySeq[ArraySeq[Cell]])

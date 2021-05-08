@@ -10,12 +10,14 @@ final case class CellPosition(cell: Cell, position: Coord)
 
 final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
 
+final case class DraggableShip(sidebarShip: SidebarShip, rotation: Rotation)
+
 final case class PlacementViewModel(
     bounds: Rectangle,
     startTime: Seconds,
     gridPoints: List[Point],
     placeMsgSignal: Signal[Point],
     grid: QuadTree[CellPosition],
-    boats: List[SidebarShip],
-    dragging: Option[SidebarShip]
+    sidebarShips: List[SidebarShip],
+    dragging: Option[DraggableShip]
 )
