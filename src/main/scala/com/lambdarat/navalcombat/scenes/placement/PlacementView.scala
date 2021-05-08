@@ -4,6 +4,7 @@ import com.lambdarat.navalcombat.assets.Assets.*
 import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.Ship.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
+import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
@@ -38,7 +39,7 @@ object PlacementView:
 
     gridPoints.toList
 
-  def computeBoats(width: Int): List[SidebarBoatPosition] =
+  def computeBoats(width: Int): List[SidebarShip] =
     val boatAlignPoints =
       (0 until BOAT_SPACING * 5 by BOAT_SPACING).map(height =>
         Point(width - BOATS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
@@ -51,7 +52,7 @@ object PlacementView:
       (Battleship, battleship),
       (Carrier, carrier)
     ).zip(boatAlignPoints).map { case ((ship, boat), point) =>
-      SidebarBoatPosition(ship, boat.scaleBy(0.5, 0.5).withPosition(point).alignRight)
+      SidebarShip(ship, boat.scaleBy(0.5, 0.5).withPosition(point).alignRight)
     }
 
   // Storyboard:
@@ -109,11 +110,17 @@ object PlacementView:
         RGBA.Red
       )
 
-    val sidebarBoats = viewModel.boats.map { case SidebarBoatPosition(shipType, shipGraphic) =>
+    val sidebarBoats = viewModel.boats.map { case SidebarShip(shipType, shipGraphic) =>
       shipGraphic.modifyMaterial { case bm: Bitmap =>
-        if viewModel.dragging.exists(_ == shipType) then bm.toImageEffects.withAlpha(0.0)
+        if viewModel.dragging.exists(_.shipType == shipType) then bm.toImageEffects.withAlpha(0.0)
         else bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
     }
 
-    SceneUpdateFragment(dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarBoats)
+    val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarBoats
+
+    val sceneNodes = viewModel.dragging match
+      case Some(SidebarShip(_, shipGraphic)) => shipGraphic :: basicPlacementSceneNodes
+      case None                              => basicPlacementSceneNodes
+
+    SceneUpdateFragment(sceneNodes)

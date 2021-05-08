@@ -80,13 +80,15 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       Outcome(viewModel.copy(startTime = context.running, grid = initialGrid))
     case FrameTick =>
       val nextDraggingShip = (context.mouse.mousePressed, context.mouse.mouseReleased, viewModel.dragging) match
-        case (true, _, None) =>
-          viewModel.boats.find { case SidebarBoatPosition(shipType, shipGraphic) =>
-            context.inputState.mouse.wasMouseDownWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
-          }.map(_.boatType)
-        case (true, _, s: Some[Ship])     => s
-        case (false, true, _: Some[Ship]) => None
-        case _                            => viewModel.dragging
+        case (true, false, None) =>
+          viewModel.boats.find { case SidebarShip(shipType, shipGraphic) =>
+            context.mouse.wasMouseDownWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
+          }.map(sbs =>
+            sbs.copy(shipGraphic = sbs.shipGraphic.withScale(Vector2(1.0, 1.0)).centerAt(context.mouse.position))
+          )
+        case (false, false, Some(sbs))           => Some(sbs.copy(shipGraphic = sbs.shipGraphic.centerAt(context.mouse.position)))
+        case (false, true, _: Some[SidebarShip]) => None
+        case _                                   => viewModel.dragging
 
       Outcome(viewModel.copy(dragging = nextDraggingShip))
     case _ =>

@@ -8,7 +8,7 @@ import indigo.*
 
 final case class CellPosition(cell: Cell, position: Coord)
 
-final case class SidebarBoatPosition(boatType: Ship, boat: Graphic)
+final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
 
 final case class PlacementViewModel(
     bounds: Rectangle,
@@ -16,6 +16,6 @@ final case class PlacementViewModel(
     gridPoints: List[Point],
     placeMsgSignal: Signal[Point],
     grid: QuadTree[CellPosition],
-    boats: List[SidebarBoatPosition],
-    dragging: Option[Ship]
+    boats: List[SidebarShip],
+    dragging: Option[SidebarShip]
 )
