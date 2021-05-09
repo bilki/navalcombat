@@ -18,9 +18,9 @@ object PlacementView:
   private val NUMBER_OF_NUMBERS    = 10
   private val LETTER_MARGIN        = 16
   private val NUMBER_MARGIN        = 24
-  private val BOATS_MARGIN         = 20
+  private val SHIPS_MARGIN         = 20
   private val GRID_TOP_MARGIN      = 80
-  private val BOAT_SPACING         = 50
+  private val SHIPS_SPACING        = 50
   private val GRID_WIDTH           = 630
   private val CELL_WIDTH           = 63
   private val DRAG_AND_DROP_HEIGHT = 60
@@ -41,8 +41,8 @@ object PlacementView:
 
   def computeSidebarShips(width: Int): List[SidebarShip] =
     val boatAlignPoints =
-      (0 until BOAT_SPACING * 5 by BOAT_SPACING).map(height =>
-        Point(width - BOATS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
+      (0 until SHIPS_SPACING * 5 by SHIPS_SPACING).map(height =>
+        Point(width - SHIPS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
       )
 
     List(
@@ -105,8 +105,8 @@ object PlacementView:
 
     val dragAndDropText =
       postGridMessage(
-        "Drag and drop\nPress R to rotate",
-        Point(viewModel.bounds.width - BOATS_MARGIN, GRID_HEIGHT),
+        "Click and place\nPress R to rotate",
+        Point(viewModel.bounds.width - SHIPS_MARGIN, GRID_HEIGHT),
         RGBA.Red
       )
 
