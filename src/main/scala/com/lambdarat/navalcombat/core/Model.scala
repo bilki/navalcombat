@@ -12,8 +12,8 @@ extension (x: XCoord)
   def +(dx: Int): XCoord = XCoord(x + dx)
 
 object XCoord:
-  def apply(x: Int): XCoord = x
-given Conversion[XCoord, Int] = identity
+  def apply(x: Int): XCoord                 = x
+  extension (xcoord: XCoord) def toInt: Int = xcoord.toInt
 
 // Y is the vertical axis
 opaque type YCoord = Int
@@ -24,17 +24,20 @@ extension (y: YCoord)
   def +(dy: Int): YCoord = YCoord(y + dy)
 
 object YCoord:
-  def apply(y: Int): YCoord = y
-given Conversion[YCoord, Int] = identity
+  def apply(y: Int): YCoord                 = y
+  extension (ycoord: YCoord) def toInt: Int = ycoord.toInt
 
 final case class Coord(x: XCoord, y: YCoord)
 
 opaque type ShipSize = Int
-given Conversion[ShipSize, Int] = identity
-given CanEqual[ShipSize, Int]   = CanEqual.derived
+given CanEqual[ShipSize, Int] = CanEqual.derived
 
 object ShipSize:
   def apply(size: Int): ShipSize = size
+
+  extension (shipShize: ShipSize)
+    def toInt: Int       = shipShize.toInt
+    def toDouble: Double = shipShize.toDouble
 
 enum Ship(val size: ShipSize):
   case Destroyer  extends Ship(ShipSize(2))
