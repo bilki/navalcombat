@@ -40,7 +40,7 @@ object PlacementView:
     gridPoints.toList
 
   def computeSidebarShips(width: Int): List[SidebarShip] =
-    val boatAlignPoints =
+    val shipAlignPoints =
       (0 until SHIPS_SPACING * 5 by SHIPS_SPACING).map(height =>
         Point(width - SHIPS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
       )
@@ -51,14 +51,14 @@ object PlacementView:
       (Cruiser, cruiser),
       (Battleship, battleship),
       (Carrier, carrier)
-    ).zip(boatAlignPoints).map { case ((ship, boat), point) =>
-      SidebarShip(ship, boat.scaleBy(0.5, 0.5).withPosition(point).alignRight)
+    ).zip(shipAlignPoints).map { case ((ship, shipGraphic), point) =>
+      SidebarShip(ship, shipGraphic.scaleBy(0.5, 0.5).withPosition(point).alignRight)
     }
 
   // Storyboard:
   //   1. Show message for 0.75 seconds
   //   2. Move message to the top in 1 second
-  //   3. After 1.75 seconds, paint the grid and the dragable ships
+  //   3. After 1.75 seconds, paint the grid and the ships to be placed
   def draw(current: Seconds, viewModel: PlacementViewModel, placementMessage: Text): SceneUpdateFragment =
     val timeSinceEnter   = current - viewModel.startTime
     val placeMsgShowTime = Seconds(0.75)
@@ -110,17 +110,17 @@ object PlacementView:
         RGBA.Red
       )
 
-    val sidebarBoats = viewModel.sidebarShips.map { case SidebarShip(shipType, shipGraphic) =>
+    val sidebarShips = viewModel.sidebarShips.map { case SidebarShip(shipType, shipGraphic) =>
       shipGraphic.modifyMaterial { case bm: Bitmap =>
         if viewModel.dragging.exists(_.sidebarShip.shipType == shipType) then bm.toImageEffects.withAlpha(0.0)
         else bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
     }
 
-    val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarBoats
+    val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarShips
 
     val sceneNodes = viewModel.dragging match
-      case Some(DraggableShip(SidebarShip(_, shipGraphic), _)) => shipGraphic :: basicPlacementSceneNodes
-      case None                                                => basicPlacementSceneNodes
+      case Some(PlacingShip(SidebarShip(_, shipGraphic), _)) => shipGraphic :: basicPlacementSceneNodes
+      case None                                              => basicPlacementSceneNodes
 
     SceneUpdateFragment(sceneNodes)

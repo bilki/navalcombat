@@ -54,6 +54,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       placeMsgSignal = Placement.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](100, 100),
       sidebarShips = sidebarShips,
+      gridShips = List.empty[SidebarShip],
       dragging = None
     )
 
@@ -79,14 +80,14 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
       Outcome(viewModel.copy(startTime = context.running, grid = initialGrid))
     case FrameTick =>
-      val nextDraggingShip = (context.mouse.mouseClicked, viewModel.dragging) match
+      val nextPlacingShip = (context.mouse.mouseClicked, viewModel.dragging) match
         case (true, None) =>
           viewModel.sidebarShips.find { case SidebarShip(shipType, shipGraphic) =>
             context.mouse.wasMouseClickedWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
           }.map(sbs =>
             val draggedSidebarShip =
               sbs.copy(shipGraphic = sbs.shipGraphic.withScale(Vector2(1.0, 1.0)).centerAt(context.mouse.position))
-            DraggableShip(draggedSidebarShip, Rotation.Horizontal)
+            PlacingShip(draggedSidebarShip, Rotation.Horizontal)
           )
         case (false, Some(dragged)) =>
           val sbs = dragged.sidebarShip
@@ -95,11 +96,11 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
           val draggedSidebarShip =
             sbs.copy(shipGraphic = sbs.shipGraphic.rotateTo(newRotation.angle).centerAt(context.mouse.position))
 
-          Some(DraggableShip(draggedSidebarShip, newRotation))
-        case (true, _: Some[DraggableShip]) => None
-        case _                              => viewModel.dragging
+          Some(PlacingShip(draggedSidebarShip, newRotation))
+        case (true, _: Some[PlacingShip]) => None
+        case _                            => viewModel.dragging
 
-      Outcome(viewModel.copy(dragging = nextDraggingShip))
+      Outcome(viewModel.copy(dragging = nextPlacingShip))
     case _ =>
       Outcome(viewModel)
 
