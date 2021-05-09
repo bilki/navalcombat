@@ -126,7 +126,7 @@ object PlacementView:
     val dragAndDropText =
       postGridMessage(
         "Click and place\nPress R to rotate",
-        Point(viewModel.screenSettings.bounds.width - SHIPS_MARGIN, viewModel.screenSettings.gridBounds.height),
+        Point(viewModel.screenSettings.bounds.width - SHIPS_MARGIN, viewModel.screenSettings.gridBounds.y),
         RGBA.Red
       )
 
