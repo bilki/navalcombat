@@ -6,26 +6,28 @@ import scala.annotation.targetName
 // X is the horizontal axis
 opaque type XCoord = Int
 
-extension (x: XCoord)
-
-  @targetName("addX")
-  def +(dx: Int): XCoord = XCoord(x + dx)
-
 object XCoord:
-  def apply(x: Int): XCoord                 = x
-  extension (xcoord: XCoord) def toInt: Int = xcoord.toInt
+  def apply(x: Int): XCoord = x
+
+  extension (x: XCoord)
+    @targetName("addX")
+    def +(dx: Int): XCoord         = XCoord(x + dx)
+    def <(other: XCoord): Boolean  = x < other
+    def eq(other: XCoord): Boolean = x == other
+    def toInt: Int                 = x.toInt
 
 // Y is the vertical axis
 opaque type YCoord = Int
 
-extension (y: YCoord)
-
-  @targetName("addY")
-  def +(dy: Int): YCoord = YCoord(y + dy)
-
 object YCoord:
-  def apply(y: Int): YCoord                 = y
-  extension (ycoord: YCoord) def toInt: Int = ycoord.toInt
+  def apply(y: Int): YCoord = y
+
+  extension (y: YCoord)
+    @targetName("addY")
+    def +(dy: Int): YCoord         = YCoord(y + dy)
+    def <(other: YCoord): Boolean  = y < other
+    def eq(other: YCoord): Boolean = y == other
+    def toInt: Int                 = y.toInt
 
 final case class Coord(x: XCoord, y: YCoord)
 

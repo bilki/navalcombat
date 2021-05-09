@@ -1,5 +1,6 @@
 package com.lambdarat.navalcombat.scenes.placement
 
+import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
@@ -43,17 +44,14 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
   val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
 
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
-    val center       = Point(setupData.width / 2, setupData.height / 2)
-    val gridPoints   = PlacementView.computeGridPoints(setupData.width, setupData.height)
-    val sidebarShips = PlacementView.computeSidebarShips(setupData.width)
+    val center = Point(setupData.width / 2, setupData.height / 2)
 
     PlacementViewModel(
       bounds = Rectangle(0, 0, setupData.width, setupData.height),
       startTime = Seconds.zero,
-      gridPoints = gridPoints.toList,
       placeMsgSignal = Placement.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](100, 100),
-      sidebarShips = sidebarShips,
+      sidebarShips = List.empty[SidebarShip],
       gridShips = List.empty[SidebarShip],
       dragging = None
     )
@@ -69,16 +67,27 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case PaintGrid =>
-      val initialCellPositions =
+      val gridGraphics = PlacementView.computeGridGraphics(context.startUpData.width, context.startUpData.height)
+      val sidebarShips = PlacementView.computeSidebarShips(context.startUpData.width)
+
+      val gridCoords =
         for
           i <- 0 until 10
           j <- 0 until 10
-          coord = Coord(XCoord(i), YCoord(j))
-        yield (CellPosition(model.board.get(coord.x, coord.y).get, coord), Vertex(i * 5 + 5, j * 5 + 5))
+        yield Coord(XCoord(i), YCoord(j))
+
+      val gridGraphicsWithCoord = gridGraphics.zip(gridCoords)
+
+      val initialCellPositions = gridGraphicsWithCoord.map { case (gridPoint, coord) =>
+        (
+          CellPosition(model.board.get(coord.x, coord.y).get, coord, gridPoint),
+          Vertex(coord.x.toInt * 5 + 5, coord.y.toInt * 5 + 5)
+        )
+      }
 
       val initialGrid = viewModel.grid.insertElements(initialCellPositions.toList)
 
-      Outcome(viewModel.copy(startTime = context.running, grid = initialGrid))
+      Outcome(viewModel.copy(startTime = context.running, grid = initialGrid, sidebarShips = sidebarShips))
     case FrameTick =>
       val nextPlacingShip = (context.mouse.mouseClicked, viewModel.dragging) match
         case (true, None) =>

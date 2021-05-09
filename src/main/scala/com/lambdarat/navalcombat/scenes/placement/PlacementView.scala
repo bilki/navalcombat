@@ -25,19 +25,19 @@ object PlacementView:
   private val CELL_WIDTH           = 63
   private val DRAG_AND_DROP_HEIGHT = 60
 
-  def computeGridPoints(width: Int, height: Int): List[Point] =
+  def computeGridGraphics(width: Int, height: Int): List[Graphic] =
     val center = Point(width / 2, height / 2)
 
     val gridIndent = (width - GRID_WIDTH) / 2
 
     // 10x10 grid positions
-    val gridPoints =
+    val gridGraphics =
       for
         i <- 0 until GRID_WIDTH by CELL_WIDTH
         j <- 0 until GRID_WIDTH by CELL_WIDTH
-      yield Point(i + gridIndent, j + GRID_TOP_MARGIN)
+      yield emptyCell.withPosition(Point(i + gridIndent, j + GRID_TOP_MARGIN))
 
-    gridPoints.toList
+    gridGraphics.toList
 
   def computeSidebarShips(width: Int): List[SidebarShip] =
     val shipAlignPoints =
@@ -67,8 +67,14 @@ object PlacementView:
     val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
 
     val showGrid = Signal.Time.when(_ >= showGridTime, positive = 1.0, negative = 0.0)
-    val grid = viewModel.gridPoints.map(position =>
-      emptyCell.withPosition(position).modifyMaterial { case bm: Bitmap =>
+
+    val gridElements = viewModel.grid.asElementList.sortWith { case (c1, c2) =>
+      if c1.position.x eq c2.position.x then c1.position.y < c2.position.y
+      else c1.position.x < c2.position.x
+    }
+
+    val grid = gridElements.map(cell =>
+      cell.cellGraphic.modifyMaterial { case bm: Bitmap =>
         bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
     )
@@ -87,19 +93,26 @@ object PlacementView:
 
     // Row letters
     val gridLetters =
-      viewModel.gridPoints.take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map { case (position, letter) =>
-        postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
+      gridElements.map(_.cellGraphic).take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map {
+        case (cellGraphic, letter) =>
+          val position = cellGraphic.position
+          postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
       }
 
     // Column numbers
     val gridNumbers =
-      viewModel.gridPoints.zipWithIndex.filter(_._2 % NUMBER_OF_NUMBERS == 0).zip(1 to NUMBER_OF_NUMBERS).map {
-        case ((position, _), number) =>
+      gridElements
+        .map(_.cellGraphic)
+        .zipWithIndex
+        .filter(_._2 % NUMBER_OF_NUMBERS == 0)
+        .zip(1 to NUMBER_OF_NUMBERS)
+        .map { case ((cellGraphic, _), number) =>
+          val position = cellGraphic.position
           postGridMessage(
             number.toString,
             position.withX(position.x + NUMBER_MARGIN * 2).withY(position.y - NUMBER_MARGIN)
           )
-      }
+        }
 
     val GRID_HEIGHT = grid.head.position.y
 
