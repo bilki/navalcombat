@@ -4,10 +4,21 @@ import com.lambdarat.navalcombat.scenes.landing.LandingEvents.*
 
 import indigo.*
 import indigo.Material.Bitmap
+import indigoextras.geometry.Vertex
 
 given CanEqual[Option[?], Option[?]]         = CanEqual.derived
 given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
 given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
+
+extension (point: Point)
+
+  // Normalizes this point into the 100x100 coordinate system with a new origin (0,0) defined by a rectangle
+  def transform(into: Rectangle): Vertex =
+    // (0,0) is (into.x, into.y)
+    val newX = (point.x - into.x) * 100 / into.width
+    val newY = (point.y - into.y) * 100 / into.height
+
+    Vertex(newX, newY)
 
 private[utils] val PIby3q = Radians(Math.PI * 1.5)
 

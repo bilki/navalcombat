@@ -2,7 +2,9 @@ package com.lambdarat.navalcombat.scenes.placement
 
 import com.lambdarat.navalcombat.assets.Assets.*
 import com.lambdarat.navalcombat.core.given
+import com.lambdarat.navalcombat.core.NavalCombatSetupData
 import com.lambdarat.navalcombat.core.Ship.*
+import com.lambdarat.navalcombat.scenes.placement.viewmodel.given
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
 import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.*
@@ -25,17 +27,19 @@ object PlacementView:
   private val CELL_WIDTH           = 63
   private val DRAG_AND_DROP_HEIGHT = 60
 
-  def computeGridGraphics(width: Int, height: Int): List[Graphic] =
-    val center = Point(width / 2, height / 2)
+  def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
+    val gridX = (setupData.width - GRID_WIDTH) / 2
+    val gridY = GRID_TOP_MARGIN
 
-    val gridIndent = (width - GRID_WIDTH) / 2
+    Rectangle(gridX, gridY, GRID_WIDTH, GRID_WIDTH)
 
+  def computeGridGraphics(gridBounds: Rectangle): List[Graphic] =
     // 10x10 grid positions
     val gridGraphics =
       for
         i <- 0 until GRID_WIDTH by CELL_WIDTH
         j <- 0 until GRID_WIDTH by CELL_WIDTH
-      yield emptyCell.withPosition(Point(i + gridIndent, j + GRID_TOP_MARGIN))
+      yield emptyCell.withPosition(Point(i + gridBounds.x, j + gridBounds.y))
 
     gridGraphics.toList
 
@@ -74,8 +78,13 @@ object PlacementView:
     }
 
     val grid = gridElements.map(cell =>
+      val highlight = cell.highlight match
+        case Highlight.Neutral => RGBA.Zero
+        case Highlight.Red => RGBA.Red
+        case Highlight.Green => RGBA.Green
+
       cell.cellGraphic.modifyMaterial { case bm: Bitmap =>
-        bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
+        bm.toImageEffects.withOverlay(Fill.Color(highlight)).withAlpha(showGrid.at(timeSinceEnter))
       }
     )
 
@@ -114,12 +123,10 @@ object PlacementView:
           )
         }
 
-    val GRID_HEIGHT = grid.head.position.y
-
     val dragAndDropText =
       postGridMessage(
         "Click and place\nPress R to rotate",
-        Point(viewModel.bounds.width - SHIPS_MARGIN, GRID_HEIGHT),
+        Point(viewModel.screenSettings.bounds.width - SHIPS_MARGIN, viewModel.screenSettings.gridBounds.height),
         RGBA.Red
       )
 
