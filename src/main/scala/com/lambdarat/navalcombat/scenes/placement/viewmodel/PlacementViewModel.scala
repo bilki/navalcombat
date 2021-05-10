@@ -7,8 +7,8 @@ import indigoextras.trees.QuadTree
 import indigo.*
 
 enum Highlight derives CanEqual:
-  case Red
-  case Green
+  case NotValid
+  case Valid
   case Neutral
 
 final case class CellPosition(cell: Cell, position: Coord, cellGraphic: Graphic, highlight: Highlight)

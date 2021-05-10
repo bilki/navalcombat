@@ -11,6 +11,7 @@ import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.Material.Bitmap
+import indigoextras.effectmaterials.*
 
 object PlacementView:
 
@@ -79,12 +80,14 @@ object PlacementView:
 
     val grid = gridElements.map(cell =>
       val highlight = cell.highlight match
-        case Highlight.Neutral => RGBA.Zero
-        case Highlight.Red => RGBA.Red
-        case Highlight.Green => RGBA.Green
+        case Highlight.Neutral  => RGBA.Zero
+        case Highlight.NotValid => RGBA.Yellow
+        case Highlight.Valid    => RGBA.White
 
       cell.cellGraphic.modifyMaterial { case bm: Bitmap =>
-        bm.toImageEffects.withOverlay(Fill.Color(highlight)).withAlpha(showGrid.at(timeSinceEnter))
+        bm.toImageEffects
+          .withOverlay(Fill.Color(highlight))
+          .withAlpha(showGrid.at(timeSinceEnter))
       }
     )
 
@@ -127,7 +130,7 @@ object PlacementView:
       postGridMessage(
         "Click and place\nPress R to rotate",
         Point(viewModel.screenSettings.bounds.width - SHIPS_MARGIN, viewModel.screenSettings.gridBounds.y),
-        RGBA.Red
+        RGBA.Black
       )
 
     val sidebarShips = viewModel.sidebarShips.map { case SidebarShip(shipType, shipGraphic) =>

@@ -143,11 +143,10 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
           val shipBounds   = sbs.shipGraphic.bounds
           val shipPosition = sbs.shipGraphic.position
           val shipCenter   = context.mouse.position
+          val holeSize     = (shipBounds.width / shipSize.toInt) - 1
 
           val shipHolesPoints: List[Point] = dragged.rotation match
             case Rotation.Horizontal =>
-              val holeSize = shipBounds.width / shipSize.toInt
-
               val firstHoleCenter = shipCenter.withX(shipCenter.x - shipBounds.width / 2 + holeSize / 2)
               val restOfHoleCenters = (1 until shipSize.toInt)
                 .map(holeMultiplier => firstHoleCenter.withX(firstHoleCenter.x + holeSize * holeMultiplier))
@@ -155,8 +154,6 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
               firstHoleCenter :: restOfHoleCenters
             case Rotation.Vertical =>
-              val holeSize = shipBounds.width / shipSize.toInt
-
               val firstHoleCenter = shipCenter.withY(shipCenter.y + shipBounds.width / 2 - holeSize / 2)
               val restOfHoleCenters = (1 until shipSize.toInt)
                 .map(holeMultiplier => firstHoleCenter.withY(firstHoleCenter.y - holeSize * holeMultiplier))
@@ -172,7 +169,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
                 .transform(viewModel.screenSettings.gridBounds)
                 .toExact
 
-              viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Green))
+              viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))
             }
             .flatten
 
