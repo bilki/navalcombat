@@ -6,12 +6,10 @@ import indigoextras.trees.QuadTree
 
 import indigo.*
 
-enum Highlight:
+enum Highlight derives CanEqual:
   case Red
   case Green
   case Neutral
-
-given CanEqual[Highlight, Highlight] = CanEqual.derived
 
 final case class CellPosition(cell: Cell, position: Coord, cellGraphic: Graphic, highlight: Highlight)
 

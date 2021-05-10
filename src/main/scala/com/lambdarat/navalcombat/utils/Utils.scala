@@ -6,9 +6,8 @@ import indigo.*
 import indigo.Material.Bitmap
 import indigoextras.geometry.Vertex
 
-given CanEqual[Option[?], Option[?]]         = CanEqual.derived
-given CanEqual[FrameTick, GlobalEvent]       = CanEqual.derived
-given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
+given CanEqual[Option[?], Option[?]]   = CanEqual.derived
+given CanEqual[FrameTick, GlobalEvent] = CanEqual.derived
 
 extension (point: Point)
 

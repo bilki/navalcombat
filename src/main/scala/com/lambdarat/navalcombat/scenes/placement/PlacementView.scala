@@ -72,8 +72,8 @@ object PlacementView:
 
     val showGrid = Signal.Time.when(_ >= showGridTime, positive = 1.0, negative = 0.0)
 
-    val gridElements = viewModel.grid.asElementList.sortWith { case (c1, c2) =>
-      if c1.position.x eq c2.position.x then c1.position.y < c2.position.y
+    val gridElements = viewModel.grid.asElementList.sortWith { (c1, c2) =>
+      if c1.position.x == c2.position.x then c1.position.y < c2.position.y
       else c1.position.x < c2.position.x
     }
 
@@ -103,7 +103,7 @@ object PlacementView:
     // Row letters
     val gridLetters =
       gridElements.map(_.cellGraphic).take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map {
-        case (cellGraphic, letter) =>
+        (cellGraphic, letter) =>
           val position = cellGraphic.position
           postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
       }

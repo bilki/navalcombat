@@ -57,11 +57,11 @@ object BoardEngine:
       if canPlace(ship, rotation, x, y) then
         rotation match
           case Vertical =>
-            (0 until ship.size.toInt).foldLeft(board) { case (oldBoard, shipY) =>
+            (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipY) =>
               oldBoard.update(x, y + shipY, Floating(ship))
             }
           case Horizontal =>
-            (0 until ship.size.toInt).foldLeft(board) { case (oldBoard, shipX) =>
+            (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipX) =>
               oldBoard.update(x + shipX, y, Floating(ship))
             }
       else board

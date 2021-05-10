@@ -98,7 +98,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
       val gridGraphicsWithCoord = gridGraphics.zip(gridCoords)
 
-      val initialCellPositions = gridGraphicsWithCoord.map { case (gridPoint, coord) =>
+      val initialCellPositions = gridGraphicsWithCoord.map { (gridPoint, coord) =>
         (
           CellPosition(model.board.get(coord.x, coord.y).get, coord, gridPoint, Highlight.Neutral),
           coord.toGridVertex
@@ -131,7 +131,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
 
       val (nextGrid, highlighted) = nextPlacingShip match
         case None =>
-          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { case (oldGrid, highlighted) =>
+          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
             val vertex = highlighted.position.toGridVertex
             oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
           }
@@ -176,12 +176,12 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
             }
             .flatten
 
-          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { case (oldGrid, highlighted) =>
+          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
             val vertex = highlighted.position.toGridVertex
             oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
           }
 
-          val overlappedGrid = overlappingCells.foldLeft(resetGrid) { case (oldGrid, overlapping) =>
+          val overlappedGrid = overlappingCells.foldLeft(resetGrid) { (oldGrid, overlapping) =>
             val vertex = overlapping.position.toGridVertex
             oldGrid.insertElement(overlapping, vertex)
           }

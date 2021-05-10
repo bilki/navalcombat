@@ -105,3 +105,4 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
 
 object LandingEvents:
   case object PlayCombat extends GlobalEvent
+  given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived

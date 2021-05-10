@@ -5,29 +5,29 @@ import scala.annotation.targetName
 
 // X is the horizontal axis
 opaque type XCoord = Int
+given CanEqual[XCoord, XCoord] = CanEqual.derived
 
 object XCoord:
   def apply(x: Int): XCoord = x
 
   extension (x: XCoord)
     @targetName("addX")
-    def +(dx: Int): XCoord         = XCoord(x + dx)
-    def <(other: XCoord): Boolean  = x < other
-    def eq(other: XCoord): Boolean = x == other
-    def toInt: Int                 = x.toInt
+    def +(dx: Int): XCoord        = XCoord(x + dx)
+    def <(other: XCoord): Boolean = x < other
+    def toInt: Int                = x.toInt
 
 // Y is the vertical axis
 opaque type YCoord = Int
+given CanEqual[YCoord, YCoord] = CanEqual.derived
 
 object YCoord:
   def apply(y: Int): YCoord = y
 
   extension (y: YCoord)
     @targetName("addY")
-    def +(dy: Int): YCoord         = YCoord(y + dy)
-    def <(other: YCoord): Boolean  = y < other
-    def eq(other: YCoord): Boolean = y == other
-    def toInt: Int                 = y.toInt
+    def +(dy: Int): YCoord        = YCoord(y + dy)
+    def <(other: YCoord): Boolean = y < other
+    def toInt: Int                = y.toInt
 
 final case class Coord(x: XCoord, y: YCoord)
 
@@ -41,24 +41,20 @@ object ShipSize:
     def toInt: Int       = shipShize.toInt
     def toDouble: Double = shipShize.toDouble
 
-enum Ship(val size: ShipSize):
+enum Ship(val size: ShipSize) derives CanEqual:
   case Destroyer  extends Ship(ShipSize(2))
   case Submarine  extends Ship(ShipSize(3))
   case Cruiser    extends Ship(ShipSize(3))
   case Battleship extends Ship(ShipSize(4))
   case Carrier    extends Ship(ShipSize(5))
 
-given CanEqual[Ship, Ship] = CanEqual.derived
-
-enum Cell:
+enum Cell derives CanEqual:
   case Unknown
   case Miss
   case Sunk(partOf: Ship)
   case Floating(partOf: Ship)
 
-given CanEqual[Cell, Cell] = CanEqual.derived
-
-enum Rotation:
+enum Rotation derives CanEqual:
   case Horizontal
   case Vertical
 
@@ -68,8 +64,6 @@ extension (rotation: Rotation)
     rotation match
       case Rotation.Horizontal => Rotation.Vertical
       case Rotation.Vertical   => Rotation.Horizontal
-
-given CanEqual[Rotation, Rotation] = CanEqual.derived
 
 final case class Board(cells: ArraySeq[ArraySeq[Cell]])
 
