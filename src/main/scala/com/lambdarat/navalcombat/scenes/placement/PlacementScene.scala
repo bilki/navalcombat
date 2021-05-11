@@ -64,16 +64,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] = _ => Outcome(model)
 
-  // Vertex normalized to match exactly the quad tree grid (x, y)
-  extension (vertex: Vertex)
-
-    def floor: Vertex =
-      val floorX = Math.floor(vertex.x)
-      val floorY = Math.floor(vertex.y)
-
-      Vertex(floorX, floorY)
-  end extension
-
   extension (coord: Coord)
 
     def toVertex: Vertex =
@@ -164,7 +154,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
             .map { hole =>
               val normalizedVertex = hole
                 .transform(viewModel.sceneSettings.gridBounds, viewModel.sceneSettings.modelSpace)
-                .floor
 
               viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))
             }
