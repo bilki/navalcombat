@@ -11,11 +11,11 @@ given CanEqual[FrameTick, GlobalEvent] = CanEqual.derived
 
 extension (point: Point)
 
-  // Normalizes this point into the 100x100 coordinate system with a new origin (0,0) defined by a rectangle
-  def transform(into: Rectangle): Vertex =
+  // Normalizes this point into the target x target coordinate system with a new origin (0,0) defined by a rectangle
+  def transform(into: Rectangle, target: Int): Vertex =
     // (0,0) is (into.x, into.y)
-    val newX = (point.x - into.x) * 100 / into.width
-    val newY = (point.y - into.y) * 100 / into.height
+    val newX = (point.x - into.x) * target / into.width
+    val newY = (point.y - into.y) * target / into.height
 
     Vertex(newX, newY)
 

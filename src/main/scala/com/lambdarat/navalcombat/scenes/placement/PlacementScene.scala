@@ -51,7 +51,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       sceneSettings = SceneSettings(setupData.screenBounds, gridBounds),
       startTime = Seconds.zero,
       placeMsgSignal = PlacementView.movePlacementMsg.run(center),
-      grid = QuadTree.empty[CellPosition](100, 100),
+      grid = QuadTree.empty[CellPosition](setupData.boardSize, setupData.boardSize),
       highlightedCells = List.empty[CellPosition],
       sidebarShips = List.empty[SidebarShip],
       gridShips = List.empty[SidebarShip],
@@ -66,18 +66,17 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   // Vertex normalized to match exactly the quad tree grid (x, y)
   extension (vertex: Vertex)
 
-    def toExact: Vertex =
-      val modX = vertex.x - (vertex.x % 10) + 5
-      val modY = vertex.y - (vertex.y % 10) + 5
+    def floor: Vertex =
+      val floorX = Math.floor(vertex.x)
+      val floorY = Math.floor(vertex.y)
 
-      Vertex(modX, modY)
+      Vertex(floorX, floorY)
   end extension
 
-  // 100x100 grid is divided into 10x10 cells and center (5, 5), used to find them in quad tree
   extension (coord: Coord)
 
-    def toGridVertex: Vertex =
-      Vertex(coord.x.toInt * 10 + 5, coord.y.toInt * 10 + 5)
+    def toVertex: Vertex =
+      Vertex(coord.x.toInt, coord.y.toInt)
   end extension
 
   def updateViewModel(
@@ -86,13 +85,15 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case PaintGrid =>
-      val gridGraphics = PlacementView.computeGridGraphics(viewModel.sceneSettings.gridBounds)
-      val sidebarShips = PlacementView.computeSidebarShips(viewModel.sceneSettings.sceneBounds.width)
+      val gridBounds   = viewModel.sceneSettings.gridBounds
+      val sceneBounds  = viewModel.sceneSettings.sceneBounds
+      val gridGraphics = PlacementView.computeGridGraphics(gridBounds)
+      val sidebarShips = PlacementView.computeSidebarShips(sceneBounds, gridBounds)
 
       val gridCoords =
         for
-          i <- 0 until 10
-          j <- 0 until 10
+          i <- 0 until context.startUpData.boardSize
+          j <- 0 until context.startUpData.boardSize
         yield Coord(XCoord(i), YCoord(j))
 
       val gridGraphicsWithCoord = gridGraphics.zip(gridCoords)
@@ -100,7 +101,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       val initialCellPositions = gridGraphicsWithCoord.map { (gridPoint, coord) =>
         (
           CellPosition(model.board.get(coord.x, coord.y).get, coord, gridPoint, Highlight.Neutral),
-          coord.toGridVertex
+          coord.toVertex
         )
       }
 
@@ -131,7 +132,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       val (nextGrid, highlighted) = nextPlacingShip match
         case None =>
           val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
-            val vertex = highlighted.position.toGridVertex
+            val vertex = highlighted.position.toVertex
             oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
           }
 
@@ -165,20 +166,20 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
             .filter(viewModel.sceneSettings.gridBounds.isPointWithin)
             .map { hole =>
               val normalizedVertex = hole
-                .transform(viewModel.sceneSettings.gridBounds)
-                .toExact
+                .transform(viewModel.sceneSettings.gridBounds, context.startUpData.boardSize)
+                .floor
 
               viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))
             }
             .flatten
 
           val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
-            val vertex = highlighted.position.toGridVertex
+            val vertex = highlighted.position.toVertex
             oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
           }
 
           val overlappedGrid = overlappingCells.foldLeft(resetGrid) { (oldGrid, overlapping) =>
-            val vertex = overlapping.position.toGridVertex
+            val vertex = overlapping.position.toVertex
             oldGrid.insertElement(overlapping, vertex)
           }
 

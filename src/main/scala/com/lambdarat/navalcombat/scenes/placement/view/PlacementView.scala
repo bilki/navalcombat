@@ -49,10 +49,10 @@ object PlacementView:
 
     gridGraphics.toList
 
-  def computeSidebarShips(width: Int): List[SidebarShip] =
+  def computeSidebarShips(sceneBounds: Rectangle, gridBounds: Rectangle): List[SidebarShip] =
     val shipAlignPoints =
       (0 until SHIPS_SPACING * 5 by SHIPS_SPACING).map(height =>
-        Point(width - SHIPS_MARGIN, GRID_TOP_MARGIN + DRAG_AND_DROP_HEIGHT + height)
+        Point(sceneBounds.width - SHIPS_MARGIN, gridBounds.y + DRAG_AND_DROP_HEIGHT + height)
       )
 
     List(

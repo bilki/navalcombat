@@ -68,6 +68,7 @@ extension (rotation: Rotation)
 final case class Board(cells: ArraySeq[ArraySeq[Cell]])
 
 object Board:
-  def empty: Board = Board(ArraySeq.fill(10, 10)(Cell.Unknown))
+  val BOARD_SIZE   = 10
+  def empty: Board = Board(ArraySeq.fill(BOARD_SIZE, BOARD_SIZE)(Cell.Unknown))
 
 final case class NavalCombatModel(board: Board)
