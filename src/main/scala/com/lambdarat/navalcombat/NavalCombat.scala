@@ -40,7 +40,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     val startup = maybeFont match
       case Some(font) =>
         Startup
-          .Success(NavalCombatSetupData(bootData.viewport.width, bootData.viewport.height))
+          .Success(NavalCombatSetupData(bootData.screenDimensions))
           .addFonts(font)
       case None: Option[FontInfo] => Startup.Failure("Failed to load font")
 

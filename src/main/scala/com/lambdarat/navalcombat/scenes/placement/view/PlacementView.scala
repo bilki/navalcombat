@@ -19,6 +19,8 @@ object PlacementView:
   private val FIRST_LETTER         = 'A'
   private val LAST_LETTER          = 'J'
   private val NUMBER_OF_NUMBERS    = 10
+
+  // These values should be relative to magnification...
   private val LETTER_MARGIN        = 16
   private val NUMBER_MARGIN        = 24
   private val SHIPS_MARGIN         = 20
@@ -32,7 +34,7 @@ object PlacementView:
   val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, PLACEMENT_MSG_MARGIN), Seconds(1)))
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
-    val gridX = (setupData.width - GRID_WIDTH) / 2
+    val gridX = (setupData.screenBounds.width - GRID_WIDTH) / 2
     val gridY = GRID_TOP_MARGIN
 
     Rectangle(gridX, gridY, GRID_WIDTH, GRID_WIDTH)

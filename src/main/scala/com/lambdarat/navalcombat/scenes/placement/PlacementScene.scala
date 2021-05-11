@@ -43,12 +43,12 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   ).alignCenter
 
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
-    val center = Point(setupData.width / 2, setupData.height / 2)
+    val center = setupData.screenBounds.center
 
     val gridBounds = PlacementView.computeGridBounds(setupData)
 
     PlacementViewModel(
-      sceneSettings = SceneSettings(Rectangle(0, 0, setupData.width, setupData.height), gridBounds),
+      sceneSettings = SceneSettings(setupData.screenBounds, gridBounds),
       startTime = Seconds.zero,
       placeMsgSignal = PlacementView.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](100, 100),
@@ -87,7 +87,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case PaintGrid =>
       val gridGraphics = PlacementView.computeGridGraphics(viewModel.sceneSettings.gridBounds)
-      val sidebarShips = PlacementView.computeSidebarShips(context.startUpData.width)
+      val sidebarShips = PlacementView.computeSidebarShips(viewModel.sceneSettings.sceneBounds.width)
 
       val gridCoords =
         for

@@ -35,7 +35,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
   def subSystems: Set[SubSystem] = Set.empty
 
   def initialLandingViewModel(setupData: NavalCombatSetupData): LandingViewModel =
-    val center = Point(setupData.width / 2, setupData.height / 2)
+    val center = setupData.screenBounds.center
 
     val welcomeMessage = Text(
       "Welcome to Naval Combat",

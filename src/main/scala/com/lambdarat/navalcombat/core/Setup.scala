@@ -1,3 +1,5 @@
 package com.lambdarat.navalcombat.core
 
-final case class NavalCombatSetupData(width: Int, height: Int)
+import indigo.Rectangle
+
+final case class NavalCombatSetupData(screenBounds: Rectangle)
