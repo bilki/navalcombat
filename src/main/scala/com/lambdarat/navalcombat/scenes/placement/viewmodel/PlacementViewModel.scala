@@ -17,10 +17,10 @@ final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
 
 final case class PlacingShip(sidebarShip: SidebarShip, rotation: Rotation)
 
-final case class ScreenSettings(bounds: Rectangle, gridBounds: Rectangle)
+final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle)
 
 final case class PlacementViewModel(
-    screenSettings: ScreenSettings,
+    sceneSettings: SceneSettings,
     startTime: Seconds,
     placeMsgSignal: Signal[Point],
     grid: QuadTree[CellPosition],

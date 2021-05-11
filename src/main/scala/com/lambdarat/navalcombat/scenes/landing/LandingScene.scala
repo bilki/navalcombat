@@ -2,7 +2,7 @@ package com.lambdarat.navalcombat.scenes.landing
 
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
-import com.lambdarat.navalcombat.scenes.placement.Placement
+import com.lambdarat.navalcombat.scenes.placement.PlacementScene
 import com.lambdarat.navalcombat.scenes.placement.PaintGrid
 import com.lambdarat.navalcombat.utils.*
 import com.lambdarat.navalcombat.utils.given
@@ -19,7 +19,7 @@ import indigoextras.ui.ButtonAssets
 
 import LandingEvents.*
 
-object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
+object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
 
   def viewModelLens: Lens[NavalCombatViewModel, LandingViewModel] =
@@ -86,7 +86,7 @@ object Landing extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombat
         viewModel.copy(play = btn)
       }
     case PlayCombat =>
-      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(Placement.name), PaintGrid)
+      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(PlacementScene.name), PaintGrid)
     case _ =>
       Outcome(viewModel)
 

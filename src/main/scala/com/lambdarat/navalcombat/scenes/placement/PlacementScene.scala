@@ -3,6 +3,7 @@ package com.lambdarat.navalcombat.scenes.placement
 import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.engine.BoardEngine.*
+import com.lambdarat.navalcombat.scenes.placement.view.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.utils.given
@@ -20,7 +21,7 @@ import indigoextras.geometry.*
 import indigoextras.subsystems.*
 import indigoextras.trees.QuadTree
 
-object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
+object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
 
   def viewModelLens: Lens[NavalCombatViewModel, PlacementViewModel] =
@@ -41,17 +42,15 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
     Material.ImageEffects(Assets.ponderosaImgName)
   ).alignCenter
 
-  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, 20), Seconds(1)))
-
   def initialPlacementViewModel(setupData: NavalCombatSetupData): PlacementViewModel =
     val center = Point(setupData.width / 2, setupData.height / 2)
 
     val gridBounds = PlacementView.computeGridBounds(setupData)
 
     PlacementViewModel(
-      screenSettings = ScreenSettings(Rectangle(0, 0, setupData.width, setupData.height), gridBounds),
+      sceneSettings = SceneSettings(Rectangle(0, 0, setupData.width, setupData.height), gridBounds),
       startTime = Seconds.zero,
-      placeMsgSignal = Placement.movePlacementMsg.run(center),
+      placeMsgSignal = PlacementView.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](100, 100),
       highlightedCells = List.empty[CellPosition],
       sidebarShips = List.empty[SidebarShip],
@@ -87,7 +86,7 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case PaintGrid =>
-      val gridGraphics = PlacementView.computeGridGraphics(viewModel.screenSettings.gridBounds)
+      val gridGraphics = PlacementView.computeGridGraphics(viewModel.sceneSettings.gridBounds)
       val sidebarShips = PlacementView.computeSidebarShips(context.startUpData.width)
 
       val gridCoords =
@@ -163,10 +162,10 @@ object Placement extends Scene[NavalCombatSetupData, NavalCombatModel, NavalComb
           end shipHolesPoints
 
           val overlappingCells = shipHolesPoints
-            .filter(viewModel.screenSettings.gridBounds.isPointWithin)
+            .filter(viewModel.sceneSettings.gridBounds.isPointWithin)
             .map { hole =>
               val normalizedVertex = hole
-                .transform(viewModel.screenSettings.gridBounds)
+                .transform(viewModel.sceneSettings.gridBounds)
                 .toExact
 
               viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))

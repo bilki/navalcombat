@@ -1,4 +1,4 @@
-package com.lambdarat.navalcombat.scenes.placement
+package com.lambdarat.navalcombat.scenes.placement.view
 
 import com.lambdarat.navalcombat.assets.Assets.*
 import com.lambdarat.navalcombat.core.given
@@ -27,6 +27,9 @@ object PlacementView:
   private val GRID_WIDTH           = 630
   private val CELL_WIDTH           = 63
   private val DRAG_AND_DROP_HEIGHT = 60
+  private val PLACEMENT_MSG_MARGIN = 20
+
+  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, PLACEMENT_MSG_MARGIN), Seconds(1)))
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
     val gridX = (setupData.width - GRID_WIDTH) / 2
@@ -129,7 +132,7 @@ object PlacementView:
     val dragAndDropText =
       postGridMessage(
         "Click and place\nPress R to rotate",
-        Point(viewModel.screenSettings.bounds.width - SHIPS_MARGIN, viewModel.screenSettings.gridBounds.y),
+        Point(viewModel.sceneSettings.sceneBounds.width - SHIPS_MARGIN, viewModel.sceneSettings.gridBounds.y),
         RGBA.Black
       )
 
