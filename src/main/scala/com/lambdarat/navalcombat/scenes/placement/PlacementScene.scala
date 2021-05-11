@@ -136,12 +136,11 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
 
           (resetGrid, List.empty[CellPosition])
         case Some(dragged) =>
-          val sbs          = dragged.sidebarShip
-          val shipSize     = sbs.shipType.size
-          val shipBounds   = sbs.shipGraphic.bounds
-          val shipPosition = sbs.shipGraphic.position
-          val shipCenter   = context.mouse.position
-          val holeSize     = (shipBounds.width / shipSize.toInt) - 1
+          val sbs        = dragged.sidebarShip
+          val shipSize   = sbs.shipType.size
+          val shipBounds = sbs.shipGraphic.bounds
+          val shipCenter = context.mouse.position
+          val holeSize   = (shipBounds.width / shipSize.toInt) - 1
 
           val shipHolesPoints: List[Point] = dragged.rotation match
             case Rotation.Horizontal =>

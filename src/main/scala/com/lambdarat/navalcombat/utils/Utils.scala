@@ -17,7 +17,7 @@ extension (point: Point)
     val newX = (point.x - origin.x) * target.width / origin.width
     val newY = (point.y - origin.y) * target.height / origin.height
 
-    Vertex(newX, newY)
+    Vertex(target.x + newX, target.y + newY)
 
 private[utils] val PIby3q = Radians(Math.PI * 1.5)
 
