@@ -46,9 +46,10 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
     val center = setupData.screenBounds.center
 
     val gridBounds = PlacementView.computeGridBounds(setupData)
+    val modelSpace = Rectangle(0, 0, setupData.boardSize, setupData.boardSize)
 
     PlacementViewModel(
-      sceneSettings = SceneSettings(setupData.screenBounds, gridBounds),
+      sceneSettings = SceneSettings(setupData.screenBounds, gridBounds, modelSpace),
       startTime = Seconds.zero,
       placeMsgSignal = PlacementView.movePlacementMsg.run(center),
       grid = QuadTree.empty[CellPosition](setupData.boardSize, setupData.boardSize),
@@ -85,15 +86,18 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case PaintGrid =>
-      val gridBounds   = viewModel.sceneSettings.gridBounds
-      val sceneBounds  = viewModel.sceneSettings.sceneBounds
+      val gridBounds  = viewModel.sceneSettings.gridBounds
+      val sceneBounds = viewModel.sceneSettings.sceneBounds
+
       val gridGraphics = PlacementView.computeGridGraphics(gridBounds)
       val sidebarShips = PlacementView.computeSidebarShips(sceneBounds, gridBounds)
 
+      val boardSize = context.startUpData.boardSize
+
       val gridCoords =
         for
-          i <- 0 until context.startUpData.boardSize
-          j <- 0 until context.startUpData.boardSize
+          i <- 0 until boardSize
+          j <- 0 until boardSize
         yield Coord(XCoord(i), YCoord(j))
 
       val gridGraphicsWithCoord = gridGraphics.zip(gridCoords)
@@ -113,18 +117,12 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
         case (true, None) =>
           viewModel.sidebarShips.find { case SidebarShip(shipType, shipGraphic) =>
             context.mouse.wasMouseClickedWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
-          }.map(sbs =>
-            val draggedSidebarShip =
-              sbs.copy(shipGraphic = sbs.shipGraphic.withScale(Vector2(1.0, 1.0)).centerAt(context.mouse.position))
-            PlacingShip(draggedSidebarShip, Rotation.Horizontal)
-          )
+          }.map(PlacingShip(_, Rotation.Horizontal))
         case (false, Some(dragged)) =>
           val sbs = dragged.sidebarShip
           val newRotation =
             if context.keyboard.keysAreUp(Key.KEY_R) then dragged.rotation.reverse else dragged.rotation
-          val draggedSidebarShip =
-            sbs.copy(shipGraphic = sbs.shipGraphic.rotateTo(newRotation.angle).centerAt(context.mouse.position))
-          Some(PlacingShip(draggedSidebarShip, newRotation))
+          Some(PlacingShip(sbs, newRotation))
         case (true, _: Some[PlacingShip]) => None
         case _                            => viewModel.dragging
       end nextPlacingShip
@@ -166,7 +164,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
             .filter(viewModel.sceneSettings.gridBounds.isPointWithin)
             .map { hole =>
               val normalizedVertex = hole
-                .transform(viewModel.sceneSettings.gridBounds, context.startUpData.boardSize)
+                .transform(viewModel.sceneSettings.gridBounds, viewModel.sceneSettings.modelSpace)
                 .floor
 
               viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))
@@ -195,7 +193,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
-    Outcome(PlacementView.draw(context.running, viewModel, placementMessage))
+    Outcome(PlacementView.draw(context.running, viewModel, placementMessage, context.mouse.position))
 
 case object PaintGrid extends GlobalEvent
 

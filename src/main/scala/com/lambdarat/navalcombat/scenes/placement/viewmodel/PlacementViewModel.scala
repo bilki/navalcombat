@@ -17,7 +17,7 @@ final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
 
 final case class PlacingShip(sidebarShip: SidebarShip, rotation: Rotation)
 
-final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle)
+final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle, modelSpace: Rectangle)
 
 final case class PlacementViewModel(
     sceneSettings: SceneSettings,

@@ -2,7 +2,7 @@ package com.lambdarat.navalcombat.scenes.placement.view
 
 import com.lambdarat.navalcombat.assets.Assets.*
 import com.lambdarat.navalcombat.core.given
-import com.lambdarat.navalcombat.core.NavalCombatSetupData
+import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.core.Ship.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.given
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
@@ -43,8 +43,8 @@ object PlacementView:
     // 10x10 grid positions
     val gridGraphics =
       for
-        i <- 0 until GRID_WIDTH by CELL_WIDTH
-        j <- 0 until GRID_WIDTH by CELL_WIDTH
+        i <- 0 until gridBounds.width by CELL_WIDTH
+        j <- 0 until gridBounds.height by CELL_WIDTH
       yield emptyCell.withPosition(Point(i + gridBounds.x, j + gridBounds.y))
 
     gridGraphics.toList
@@ -69,7 +69,7 @@ object PlacementView:
   //   1. Show message for 0.75 seconds
   //   2. Move message to the top in 1 second
   //   3. After 1.75 seconds, paint the grid and the ships to be placed
-  def draw(current: Seconds, viewModel: PlacementViewModel, placementMessage: Text): SceneUpdateFragment =
+  def draw(current: Seconds, viewModel: PlacementViewModel, placementMessage: Text, mousePosition: Point): SceneUpdateFragment =
     val timeSinceEnter   = current - viewModel.startTime
     val placeMsgShowTime = Seconds(0.75)
     val showGridTime     = placeMsgShowTime + Seconds(1)
@@ -148,7 +148,12 @@ object PlacementView:
     val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarShips
 
     val sceneNodes = viewModel.dragging match
-      case Some(PlacingShip(SidebarShip(_, shipGraphic), _)) => shipGraphic :: basicPlacementSceneNodes
+      case Some(PlacingShip(SidebarShip(_, shipGraphic), rotation)) =>
+        val trackingShip = shipGraphic
+          .withScale(Vector2.one)
+          .rotateTo(rotation.angle)
+          .centerAt(mousePosition)
+        trackingShip :: basicPlacementSceneNodes
       case None                                              => basicPlacementSceneNodes
 
     SceneUpdateFragment(sceneNodes)
