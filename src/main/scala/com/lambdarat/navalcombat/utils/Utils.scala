@@ -49,6 +49,8 @@ extension (graphic: Graphic)
     graphic.moveBy(xTranslation, yTranslation)
   def alignRight: Graphic =
     graphic.moveTo(graphic.position.x - (graphic.bounds.width * graphic.scale.x).toInt, graphic.bounds.y)
+  def alignBottom: Graphic =
+    graphic.moveTo(graphic.position.x, graphic.bounds.y - (graphic.bounds.height * graphic.scale.y).toInt)
   def centerAt(position: Point): Graphic = graphic.moveTo(position).alignCenter
 
 extension (bm: Bitmap) def toZeroGraphic: Graphic = Graphic(0, 0, bm)

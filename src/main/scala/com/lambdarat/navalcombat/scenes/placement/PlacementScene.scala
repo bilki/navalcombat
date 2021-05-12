@@ -22,7 +22,7 @@ import indigoextras.subsystems.*
 import indigoextras.trees.QuadTree
 
 object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
-  def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepOriginal
+  def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
 
   def viewModelLens: Lens[NavalCombatViewModel, PlacementViewModel] =
     Lens(_.placement, (ncvm, pvm) => ncvm.copy(placement = pvm))
@@ -60,7 +60,15 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
-  ): GlobalEvent => Outcome[NavalCombatModel] = _ => Outcome(model)
+  ): GlobalEvent => Outcome[NavalCombatModel] =
+    case PlaceShip(ship, coord, rotation) =>
+      val updatedBoard = model.board.place(ship, rotation, coord.x, coord.y)
+
+      if model.board.canPlace(ship, rotation, coord.x, coord.y) then
+        Outcome(model.copy(board = updatedBoard, ships = model.ships + (ship -> ShipOrientation(coord, rotation))))
+      else Outcome(model)
+    case _ =>
+      Outcome(model)
 
   private def highlightedCells(
       dragged: PlacingShip,
@@ -73,7 +81,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
     val shipSize   = sbs.shipType.size
     val shipBounds = sbs.shipGraphic.bounds
     val shipCenter = mousePosition
-    val holeSize   = (shipBounds.width / shipSize.toInt) - 1
+    val holeSize   = shipBounds.width / shipSize.toInt
 
     val shipHolesPoints: List[Point] = dragged.rotation match
       case Rotation.Horizontal =>
@@ -95,7 +103,8 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
     val overlapping = shipHolesPoints.filter(gridBounds.isPointWithin).map(_.transform(gridBounds, modelSpace).toCoord)
 
     overlapping match
-      case Nil => List.empty[Highlighted]
+      case Nil                                        => List.empty[Highlighted]
+      case overlaps if overlaps.size < shipSize.toInt => overlapping.map(Highlighted(_, Highlight.NotValid))
       case firstCoord :: rest =>
         if model.board.canPlace(dragged.sidebarShip.shipType, dragged.rotation, firstCoord.x, firstCoord.y) then
           overlapping.map(Highlighted(_, Highlight.Valid))
@@ -142,8 +151,30 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
           val nextPlacingShip = Some(PlacingShip(sbs, newRotation))
 
           Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
-        case (true, _: Some[PlacingShip]) =>
-          Outcome(viewModel.copy(dragging = None, highlightedCells = List.empty))
+        case (true, Some(dragged)) =>
+          val highlighted = highlightedCells(dragged, gridBounds, modelSpace, context.mouse.position, model)
+
+          val maybePlacePosition =
+            if highlighted.size == dragged.sidebarShip.shipType.size.toInt && highlighted.forall(
+              _.highlight == Highlight.Valid
+            ) then
+              highlighted.headOption.map(highlightedCell =>
+                PlaceShip(dragged.sidebarShip.shipType, highlightedCell.position, dragged.rotation)
+              )
+            else None
+
+          Outcome(viewModel.copy(dragging = None, highlightedCells = List.empty)).flatMap { nextViewModel =>
+            maybePlacePosition match
+              case None =>
+                Outcome(nextViewModel)
+              case Some(placeShip) =>
+                Outcome(
+                  nextViewModel.copy(sidebarShips =
+                    nextViewModel.sidebarShips.filterNot(_.shipType == placeShip.shipType)
+                  )
+                ).addGlobalEvents(placeShip)
+          }
+
         case (false, None) =>
           Outcome(viewModel)
     case _ =>
@@ -156,6 +187,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   ): Outcome[SceneUpdateFragment] =
     Outcome(PlacementView.draw(context.running, model, viewModel, placementMessage, context.mouse.position))
 
-case object PaintGrid extends GlobalEvent
+case object PaintGrid                                                  extends GlobalEvent
+case class PlaceShip(shipType: Ship, coord: Coord, rotation: Rotation) extends GlobalEvent
 
 given CanEqual[PaintGrid.type, GlobalEvent] = CanEqual.derived

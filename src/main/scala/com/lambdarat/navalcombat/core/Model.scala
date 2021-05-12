@@ -13,6 +13,7 @@ object XCoord:
   extension (x: XCoord)
     @targetName("addX")
     def +(dx: Int): XCoord        = XCoord(x + dx)
+    def -(dx: Int): XCoord        = XCoord(x - dx)
     def <(other: XCoord): Boolean = x < other
     def toInt: Int                = x.toInt
 
@@ -26,6 +27,7 @@ object YCoord:
   extension (y: YCoord)
     @targetName("addY")
     def +(dy: Int): YCoord        = YCoord(y + dy)
+    def -(dy: Int): YCoord        = YCoord(y - dy)
     def <(other: YCoord): Boolean = y < other
     def toInt: Int                = y.toInt
 
@@ -71,4 +73,14 @@ object Board:
   val BOARD_SIZE   = 10
   def empty: Board = Board(ArraySeq.fill(BOARD_SIZE, BOARD_SIZE)(Cell.Unknown))
 
-final case class NavalCombatModel(board: Board)
+final case class ShipOrientation(coord: Coord, rotation: Rotation):
+
+  def sections(size: ShipSize): List[Coord] = rotation match
+    case Rotation.Horizontal =>
+      coord :: (1 until size.toInt).toList
+        .map(shiftX => coord.copy(x = coord.x + shiftX))
+    case Rotation.Vertical =>
+      coord :: (1 until size.toInt).toList
+        .map(shiftY => coord.copy(y = coord.y - shiftY))
+
+final case class NavalCombatModel(board: Board, ships: Map[Ship, ShipOrientation])

@@ -9,9 +9,15 @@ import com.lambdarat.navalcombat.core.given
 
 object BoardEngine:
 
-  private def validCoords(x: XCoord, y: YCoord): Boolean = x.toInt >= 0 && x.toInt < 10 && y.toInt >= 0 && y.toInt < 10
+  private def validCoords(x: XCoord, y: YCoord): Boolean =
+    x.toInt >= 0 && x.toInt < Board.BOARD_SIZE && y.toInt >= 0 && y.toInt < Board.BOARD_SIZE
 
   extension (board: Board)
+
+    def pretty: String =
+      board.cells.zipWithIndex.map { (row, idx) =>
+        s"$idx [${row.mkString(";")}]"
+      }.mkString("\n")
 
     def get(x: XCoord, y: YCoord): Option[Cell] =
       Option.when(validCoords(x, y))(board.cells(x.toInt)(y.toInt))
@@ -30,7 +36,7 @@ object BoardEngine:
     def isEmpty(x: XCoord, y: YCoord): Boolean =
       Option
         .when(validCoords(x, y))(
-          board.cells(x.toInt)(y.toInt) == Unknown
+          board.cells(x.toInt)(y.toInt) == Cell.Unknown
         )
         .getOrElse(false)
 
@@ -42,7 +48,7 @@ object BoardEngine:
           case Vertical =>
             (0 until ship.size.toInt)
               .forall(shipY =>
-                validCoords(x, y + shipY) && board.get(x, y + shipY).fold(false) {
+                validCoords(x, y - shipY) && board.get(x, y - shipY).fold(false) {
                   case Unknown => true
                   case _       => false
                 }
@@ -65,7 +71,7 @@ object BoardEngine:
         rotation match
           case Vertical =>
             (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipY) =>
-              oldBoard.update(x, y + shipY, Floating(ship))
+              oldBoard.update(x, y - shipY, Floating(ship))
             }
           case Horizontal =>
             (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipX) =>

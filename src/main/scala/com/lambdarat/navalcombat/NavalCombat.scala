@@ -47,7 +47,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Outcome(startup)
 
   def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(
-    NavalCombatModel(Board.empty)
+    NavalCombatModel(Board.empty, Map.empty)
   )
 
   def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
