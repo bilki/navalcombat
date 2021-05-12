@@ -1,5 +1,6 @@
 package com.lambdarat.navalcombat.utils
 
+import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.landing.LandingEvents.*
 
 import indigo.*
@@ -9,15 +10,20 @@ import indigoextras.geometry.Vertex
 given CanEqual[Option[?], Option[?]]   = CanEqual.derived
 given CanEqual[FrameTick, GlobalEvent] = CanEqual.derived
 
+extension (coord: Coord) def toPoint: Point = Point(coord.x.toInt, coord.y.toInt)
+
 extension (point: Point)
 
   // Transforms a point from coordinate system origin into target
-  def transform(origin: Rectangle, target: Rectangle): Vertex =
+  def transform(origin: Rectangle, target: Rectangle): Point =
     // (0,0) is (origin.x, origin.y)
     val newX = (point.x - origin.x) * target.width / origin.width
     val newY = (point.y - origin.y) * target.height / origin.height
 
-    Vertex(target.x + Math.floor(newX), target.y + Math.floor(newY))
+    Point(target.x + Math.floor(newX).toInt, target.y + Math.floor(newY).toInt)
+
+  def toCoord: Coord = Coord(XCoord(point.x), YCoord(point.y))
+end extension
 
 private[utils] val PIby3q = Radians(Math.PI * 1.5)
 

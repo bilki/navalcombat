@@ -52,10 +52,8 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       sceneSettings = SceneSettings(setupData.screenBounds, gridBounds, modelSpace),
       startTime = Seconds.zero,
       placeMsgSignal = PlacementView.movePlacementMsg.run(center),
-      grid = QuadTree.empty[CellPosition](setupData.boardSize, setupData.boardSize),
-      highlightedCells = List.empty[CellPosition],
+      highlightedCells = List.empty[Highlighted],
       sidebarShips = List.empty[SidebarShip],
-      gridShips = List.empty[SidebarShip],
       dragging = None
     )
 
@@ -63,12 +61,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] = _ => Outcome(model)
-
-  extension (coord: Coord)
-
-    def toVertex: Vertex =
-      Vertex(coord.x.toInt, coord.y.toInt)
-  end extension
 
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
@@ -84,24 +76,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
 
       val boardSize = context.startUpData.boardSize
 
-      val gridCoords =
-        for
-          i <- 0 until boardSize
-          j <- 0 until boardSize
-        yield Coord(XCoord(i), YCoord(j))
-
-      val gridGraphicsWithCoord = gridGraphics.zip(gridCoords)
-
-      val initialCellPositions = gridGraphicsWithCoord.map { (gridPoint, coord) =>
-        (
-          CellPosition(model.board.get(coord.x, coord.y).get, coord, gridPoint, Highlight.Neutral),
-          coord.toVertex
-        )
-      }
-
-      val initialGrid = viewModel.grid.insertElements(initialCellPositions.toList)
-
-      Outcome(viewModel.copy(startTime = context.running, grid = initialGrid, sidebarShips = sidebarShips))
+      Outcome(viewModel.copy(startTime = context.running, sidebarShips = sidebarShips))
     case FrameTick =>
       val nextPlacingShip = (context.mouse.mouseClicked, viewModel.dragging) match
         case (true, None) =>
@@ -117,14 +92,8 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
         case _                            => viewModel.dragging
       end nextPlacingShip
 
-      val (nextGrid, highlighted) = nextPlacingShip match
-        case None =>
-          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
-            val vertex = highlighted.position.toVertex
-            oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
-          }
-
-          (resetGrid, List.empty[CellPosition])
+      val highlighted = nextPlacingShip match
+        case None => List.empty[Highlighted]
         case Some(dragged) =>
           val sbs        = dragged.sidebarShip
           val shipSize   = sbs.shipType.size
@@ -149,30 +118,16 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
               firstHoleCenter :: restOfHoleCenters
           end shipHolesPoints
 
-          val overlappingCells = shipHolesPoints
+          shipHolesPoints
             .filter(viewModel.sceneSettings.gridBounds.isPointWithin)
             .map { hole =>
-              val normalizedVertex = hole
-                .transform(viewModel.sceneSettings.gridBounds, viewModel.sceneSettings.modelSpace)
-
-              viewModel.grid.fetchElementAt(normalizedVertex).map(_.copy(highlight = Highlight.Valid))
+              val holeToModelSpace =
+                hole.transform(viewModel.sceneSettings.gridBounds, viewModel.sceneSettings.modelSpace)
+              Highlighted(holeToModelSpace.toCoord, Highlight.Valid)
             }
-            .flatten
+      end highlighted
 
-          val resetGrid = viewModel.highlightedCells.foldLeft(viewModel.grid) { (oldGrid, highlighted) =>
-            val vertex = highlighted.position.toVertex
-            oldGrid.insertElement(highlighted.copy(highlight = Highlight.Neutral), vertex)
-          }
-
-          val overlappedGrid = overlappingCells.foldLeft(resetGrid) { (oldGrid, overlapping) =>
-            val vertex = overlapping.position.toVertex
-            oldGrid.insertElement(overlapping, vertex)
-          }
-
-          (overlappedGrid, overlappingCells)
-      end val
-
-      Outcome(viewModel.copy(dragging = nextPlacingShip, grid = nextGrid, highlightedCells = highlighted))
+      Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
     case _ =>
       Outcome(viewModel)
 
@@ -181,7 +136,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
-    Outcome(PlacementView.draw(context.running, viewModel, placementMessage, context.mouse.position))
+    Outcome(PlacementView.draw(context.running, model, viewModel, placementMessage, context.mouse.position))
 
 case object PaintGrid extends GlobalEvent
 

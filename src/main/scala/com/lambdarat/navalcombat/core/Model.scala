@@ -29,7 +29,7 @@ object YCoord:
     def <(other: YCoord): Boolean = y < other
     def toInt: Int                = y.toInt
 
-final case class Coord(x: XCoord, y: YCoord)
+final case class Coord(x: XCoord, y: YCoord) derives CanEqual
 
 opaque type ShipSize = Int
 given CanEqual[ShipSize, Int] = CanEqual.derived

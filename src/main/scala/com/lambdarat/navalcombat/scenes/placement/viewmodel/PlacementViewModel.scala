@@ -11,21 +11,19 @@ enum Highlight derives CanEqual:
   case Valid
   case Neutral
 
-final case class CellPosition(cell: Cell, position: Coord, cellGraphic: Graphic, highlight: Highlight)
+final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle, modelSpace: Rectangle)
+
+final case class Highlighted(position: Coord, highlight: Highlight)
 
 final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
 
 final case class PlacingShip(sidebarShip: SidebarShip, rotation: Rotation)
 
-final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle, modelSpace: Rectangle)
-
 final case class PlacementViewModel(
     sceneSettings: SceneSettings,
     startTime: Seconds,
     placeMsgSignal: Signal[Point],
-    grid: QuadTree[CellPosition],
-    highlightedCells: List[CellPosition],
+    highlightedCells: List[Highlighted],
     sidebarShips: List[SidebarShip],
-    gridShips: List[SidebarShip],
     dragging: Option[PlacingShip]
 )

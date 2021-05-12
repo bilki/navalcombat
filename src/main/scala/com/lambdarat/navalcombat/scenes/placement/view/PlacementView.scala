@@ -4,6 +4,7 @@ import com.lambdarat.navalcombat.assets.Assets.*
 import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.core.Ship.*
+import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.given
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
 import com.lambdarat.navalcombat.utils.given
@@ -15,10 +16,10 @@ import indigoextras.effectmaterials.*
 
 object PlacementView:
 
-  private val NUMBER_OF_LETTERS    = 10
-  private val FIRST_LETTER         = 'A'
-  private val LAST_LETTER          = 'J'
-  private val NUMBER_OF_NUMBERS    = 10
+  private val NUMBER_OF_LETTERS = 10
+  private val FIRST_LETTER      = 'A'
+  private val LAST_LETTER       = 'J'
+  private val NUMBER_OF_NUMBERS = 10
 
   // These values should be relative to magnification...
   private val LETTER_MARGIN        = 16
@@ -31,7 +32,8 @@ object PlacementView:
   private val DRAG_AND_DROP_HEIGHT = 60
   private val PLACEMENT_MSG_MARGIN = 20
 
-  val movePlacementMsg = SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, PLACEMENT_MSG_MARGIN), Seconds(1)))
+  val movePlacementMsg =
+    SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, PLACEMENT_MSG_MARGIN), Seconds(1)))
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
     val gridX = (setupData.screenBounds.width - GRID_WIDTH) / 2
@@ -69,7 +71,13 @@ object PlacementView:
   //   1. Show message for 0.75 seconds
   //   2. Move message to the top in 1 second
   //   3. After 1.75 seconds, paint the grid and the ships to be placed
-  def draw(current: Seconds, viewModel: PlacementViewModel, placementMessage: Text, mousePosition: Point): SceneUpdateFragment =
+  def draw(
+      current: Seconds,
+      model: NavalCombatModel,
+      viewModel: PlacementViewModel,
+      placementMessage: Text,
+      mousePosition: Point
+  ): SceneUpdateFragment =
     val timeSinceEnter   = current - viewModel.startTime
     val placeMsgShowTime = Seconds(0.75)
     val showGridTime     = placeMsgShowTime + Seconds(1)
@@ -78,23 +86,34 @@ object PlacementView:
 
     val showGrid = Signal.Time.when(_ >= showGridTime, positive = 1.0, negative = 0.0)
 
-    val gridElements = viewModel.grid.asElementList.sortWith { (c1, c2) =>
-      if c1.position.x == c2.position.x then c1.position.y < c2.position.y
-      else c1.position.x < c2.position.x
-    }
+    val modelSpace = viewModel.sceneSettings.modelSpace
 
-    val grid = gridElements.map(cell =>
-      val highlight = cell.highlight match
+    val grid = for {
+      x <- 0 until modelSpace.width
+      y <- 0 until modelSpace.height
+    } yield
+      val cellCoord      = Coord(XCoord(x), YCoord(y))
+      val cellPoint      = cellCoord.toPoint
+      val maybeHighlight = viewModel.highlightedCells.find(_.position == cellCoord).map(_.highlight)
+
+      val cellGraphic = model.board.get(cellCoord.x, cellCoord.y).get match
+        case Cell.Unknown => emptyCell.withPosition(cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds))
+        case Cell.Miss    => missCell.withPosition(cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds))
+        case f: Cell.Floating =>
+          emptyCell.withPosition(cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds))
+        case s: Cell.Sunk => emptyCell.withPosition(cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds))
+
+      val highlightColor = maybeHighlight.getOrElse(Highlight.Neutral) match
         case Highlight.Neutral  => RGBA.Zero
         case Highlight.NotValid => RGBA.Yellow
         case Highlight.Valid    => RGBA.White
 
-      cell.cellGraphic.modifyMaterial { case bm: Bitmap =>
+      cellGraphic.modifyMaterial { case bm: Bitmap =>
         bm.toImageEffects
-          .withOverlay(Fill.Color(highlight))
+          .withOverlay(Fill.Color(highlightColor))
           .withAlpha(showGrid.at(timeSinceEnter))
       }
-    )
+    end grid
 
     def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text =
       placementMessage
@@ -110,17 +129,14 @@ object PlacementView:
 
     // Row letters
     val gridLetters =
-      gridElements.map(_.cellGraphic).take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map {
-        (cellGraphic, letter) =>
-          val position = cellGraphic.position
-          postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
+      grid.take(NUMBER_OF_LETTERS).zip(FIRST_LETTER to LAST_LETTER).map { (cellGraphic, letter) =>
+        val position = cellGraphic.position
+        postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
       }
 
     // Column numbers
     val gridNumbers =
-      gridElements
-        .map(_.cellGraphic)
-        .zipWithIndex
+      grid.zipWithIndex
         .filter(_._2 % NUMBER_OF_NUMBERS == 0)
         .zip(1 to NUMBER_OF_NUMBERS)
         .map { case ((cellGraphic, _), number) =>
@@ -145,7 +161,8 @@ object PlacementView:
       }
     }
 
-    val basicPlacementSceneNodes = dragAndDropText :: placeMessage :: grid ++ gridLetters ++ gridNumbers ++ sidebarShips
+    val basicPlacementSceneNodes =
+      dragAndDropText :: placeMessage :: grid.toList ++ gridLetters ++ gridNumbers ++ sidebarShips
 
     val sceneNodes = viewModel.dragging match
       case Some(PlacingShip(SidebarShip(_, shipGraphic), rotation)) =>
@@ -153,7 +170,8 @@ object PlacementView:
           .withScale(Vector2.one)
           .rotateTo(rotation.angle)
           .centerAt(mousePosition)
+
         trackingShip :: basicPlacementSceneNodes
-      case None                                              => basicPlacementSceneNodes
+      case None => basicPlacementSceneNodes
 
     SceneUpdateFragment(sceneNodes)
