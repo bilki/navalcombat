@@ -126,7 +126,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       val gridBounds  = viewModel.sceneSettings.gridBounds
       val sceneBounds = viewModel.sceneSettings.sceneBounds
 
-      val gridGraphics = PlacementView.computeGridGraphics(gridBounds)
       val sidebarShips = PlacementView.computeSidebarShips(sceneBounds, gridBounds)
 
       val boardSize = context.startUpData.boardSize

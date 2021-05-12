@@ -41,30 +41,23 @@ object PlacementView:
 
     Rectangle(gridX, gridY, GRID_WIDTH, GRID_WIDTH)
 
-  def computeGridGraphics(gridBounds: Rectangle): List[Graphic] =
-    // 10x10 grid positions
-    val gridGraphics =
-      for
-        i <- 0 until gridBounds.width by CELL_WIDTH
-        j <- 0 until gridBounds.height by CELL_WIDTH
-      yield emptyCell.withPosition(Point(i + gridBounds.x, j + gridBounds.y))
-
-    gridGraphics.toList
+  def graphicFor(ship: Ship): Graphic =
+    ship match
+      case Destroyer  => destroyer
+      case Cruiser    => cruiser
+      case Submarine  => submarine
+      case Battleship => battleship
+      case Carrier    => carrier
 
   def computeSidebarShips(sceneBounds: Rectangle, gridBounds: Rectangle): List[SidebarShip] =
     val shipAlignPoints =
-      (0 until SHIPS_SPACING * 5 by SHIPS_SPACING).map(height =>
+      (0 until SHIPS_SPACING * Ship.values.size by SHIPS_SPACING).map(height =>
         Point(sceneBounds.width - SHIPS_MARGIN, gridBounds.y + DRAG_AND_DROP_HEIGHT + height)
       )
 
-    List(
-      (Destroyer, destroyer),
-      (Submarine, submarine),
-      (Cruiser, cruiser),
-      (Battleship, battleship),
-      (Carrier, carrier)
-    ).zip(shipAlignPoints).map { case ((ship, shipGraphic), point) =>
-      SidebarShip(ship, shipGraphic.scaleBy(0.5, 0.5).withPosition(point).alignRight)
+    Ship.values.toList.map(ship => (ship, graphicFor(ship))).zip(shipAlignPoints).map {
+      case ((ship, shipGraphic), point) =>
+        SidebarShip(ship, shipGraphic.scaleBy(0.5, 0.5).withPosition(point).alignRight)
     }
 
   // Storyboard:
@@ -105,12 +98,7 @@ object PlacementView:
           case Cell.Floating(partOf) =>
             model.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
               if cellCoord == shipCoords then
-                val shipGraphic = partOf match
-                  case Destroyer  => destroyer
-                  case Cruiser    => cruiser
-                  case Submarine  => submarine
-                  case Battleship => battleship
-                  case Carrier    => carrier
+                val shipGraphic = graphicFor(partOf)
 
                 val rotatedShip = shipRotation match
                   case Rotation.Horizontal =>
