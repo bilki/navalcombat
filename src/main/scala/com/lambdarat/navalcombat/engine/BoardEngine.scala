@@ -27,6 +27,13 @@ object BoardEngine:
         }
         .getOrElse(board)
 
+    def isEmpty(x: XCoord, y: YCoord): Boolean =
+      Option
+        .when(validCoords(x, y))(
+          board.cells(x.toInt)(y.toInt) == Unknown
+        )
+        .getOrElse(false)
+
     // x,_ for Horizontal rotation starts from the left-most cell
     // _,y for Vertical rotation starts from the bottom-most cell
     def canPlace(ship: Ship, rotation: Rotation, x: XCoord, y: YCoord): Boolean =

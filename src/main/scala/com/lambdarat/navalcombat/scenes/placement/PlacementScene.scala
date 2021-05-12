@@ -62,6 +62,52 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] = _ => Outcome(model)
 
+  private def highlightedCells(
+      dragged: PlacingShip,
+      gridBounds: Rectangle,
+      modelSpace: Rectangle,
+      mousePosition: Point,
+      model: NavalCombatModel
+  ): List[Highlighted] =
+    val sbs        = dragged.sidebarShip
+    val shipSize   = sbs.shipType.size
+    val shipBounds = sbs.shipGraphic.bounds
+    val shipCenter = mousePosition
+    val holeSize   = (shipBounds.width / shipSize.toInt) - 1
+
+    val shipHolesPoints: List[Point] = dragged.rotation match
+      case Rotation.Horizontal =>
+        val firstHoleCenter = shipCenter.withX(shipCenter.x - shipBounds.width / 2 + holeSize / 2)
+        val restOfHoleCenters = (1 until shipSize.toInt)
+          .map(holeMultiplier => firstHoleCenter.withX(firstHoleCenter.x + holeSize * holeMultiplier))
+          .toList
+
+        firstHoleCenter :: restOfHoleCenters
+      case Rotation.Vertical =>
+        val firstHoleCenter = shipCenter.withY(shipCenter.y + shipBounds.width / 2 - holeSize / 2)
+        val restOfHoleCenters = (1 until shipSize.toInt)
+          .map(holeMultiplier => firstHoleCenter.withY(firstHoleCenter.y - holeSize * holeMultiplier))
+          .toList
+
+        firstHoleCenter :: restOfHoleCenters
+    end shipHolesPoints
+
+    val overlapping = shipHolesPoints.filter(gridBounds.isPointWithin).map(_.transform(gridBounds, modelSpace).toCoord)
+
+    overlapping match
+      case Nil => List.empty[Highlighted]
+      case firstCoord :: rest =>
+        if model.board.canPlace(dragged.sidebarShip.shipType, dragged.rotation, firstCoord.x, firstCoord.y) then
+          overlapping.map(Highlighted(_, Highlight.Valid))
+        else
+          overlapping.map(coord =>
+            Highlighted(
+              coord,
+              if model.board.isEmpty(coord.x, coord.y) then Highlight.Valid else Highlight.NotValid
+            )
+          )
+  end highlightedCells
+
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
@@ -78,56 +124,28 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
 
       Outcome(viewModel.copy(startTime = context.running, sidebarShips = sidebarShips))
     case FrameTick =>
-      val nextPlacingShip = (context.mouse.mouseClicked, viewModel.dragging) match
+      val gridBounds = viewModel.sceneSettings.gridBounds
+      val modelSpace = viewModel.sceneSettings.modelSpace
+
+      (context.mouse.mouseClicked, viewModel.dragging) match
         case (true, None) =>
-          viewModel.sidebarShips.find { case SidebarShip(shipType, shipGraphic) =>
+          val nextPlacingShip = viewModel.sidebarShips.find { case SidebarShip(shipType, shipGraphic) =>
             context.mouse.wasMouseClickedWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
           }.map(PlacingShip(_, Rotation.Horizontal))
+
+          Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = List.empty))
         case (false, Some(dragged)) =>
-          val sbs = dragged.sidebarShip
+          val highlighted = highlightedCells(dragged, gridBounds, modelSpace, context.mouse.position, model)
+          val sbs         = dragged.sidebarShip
           val newRotation =
             if context.keyboard.keysAreUp(Key.KEY_R) then dragged.rotation.reverse else dragged.rotation
-          Some(PlacingShip(sbs, newRotation))
-        case (true, _: Some[PlacingShip]) => None
-        case _                            => viewModel.dragging
-      end nextPlacingShip
+          val nextPlacingShip = Some(PlacingShip(sbs, newRotation))
 
-      val highlighted = nextPlacingShip match
-        case None => List.empty[Highlighted]
-        case Some(dragged) =>
-          val sbs        = dragged.sidebarShip
-          val shipSize   = sbs.shipType.size
-          val shipBounds = sbs.shipGraphic.bounds
-          val shipCenter = context.mouse.position
-          val holeSize   = (shipBounds.width / shipSize.toInt) - 1
-
-          val shipHolesPoints: List[Point] = dragged.rotation match
-            case Rotation.Horizontal =>
-              val firstHoleCenter = shipCenter.withX(shipCenter.x - shipBounds.width / 2 + holeSize / 2)
-              val restOfHoleCenters = (1 until shipSize.toInt)
-                .map(holeMultiplier => firstHoleCenter.withX(firstHoleCenter.x + holeSize * holeMultiplier))
-                .toList
-
-              firstHoleCenter :: restOfHoleCenters
-            case Rotation.Vertical =>
-              val firstHoleCenter = shipCenter.withY(shipCenter.y + shipBounds.width / 2 - holeSize / 2)
-              val restOfHoleCenters = (1 until shipSize.toInt)
-                .map(holeMultiplier => firstHoleCenter.withY(firstHoleCenter.y - holeSize * holeMultiplier))
-                .toList
-
-              firstHoleCenter :: restOfHoleCenters
-          end shipHolesPoints
-
-          shipHolesPoints
-            .filter(viewModel.sceneSettings.gridBounds.isPointWithin)
-            .map { hole =>
-              val holeToModelSpace =
-                hole.transform(viewModel.sceneSettings.gridBounds, viewModel.sceneSettings.modelSpace)
-              Highlighted(holeToModelSpace.toCoord, Highlight.Valid)
-            }
-      end highlighted
-
-      Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
+          Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
+        case (true, _: Some[PlacingShip]) =>
+          Outcome(viewModel.copy(dragging = None, highlightedCells = List.empty))
+        case (false, None) =>
+          Outcome(viewModel)
     case _ =>
       Outcome(viewModel)
 
