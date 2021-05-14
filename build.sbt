@@ -29,7 +29,13 @@ lazy val root = project
     organization   := "com.lambdarat",
     version        := "0.1.0",
     commands      ++= Seq(buildGame, runGame),
-    scalacOptions ++= Seq("-language:strictEquality")
+    scalacOptions ++= Seq("-language:strictEquality"),
+    testFrameworks += new TestFramework("munit.Framework"),
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit"            % "0.7.25" % Test,
+      "org.scalameta" %%% "munit-scalacheck" % "0.7.25" % Test
+    )
   )
   .settings(
     showCursor          := true,

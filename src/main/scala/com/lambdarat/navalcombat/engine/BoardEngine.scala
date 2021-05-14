@@ -22,7 +22,7 @@ object BoardEngine:
     def get(x: XCoord, y: YCoord): Option[Cell] =
       Option.when(validCoords(x, y))(board.cells(x.toInt)(y.toInt))
 
-    def update(x: XCoord, y: YCoord, value: Cell): Board =
+    def update(x: XCoord, y: YCoord, value: Cell): Option[Board] =
       Option
         .when(validCoords(x, y)) {
           val row          = board.cells(x.toInt)
@@ -31,7 +31,6 @@ object BoardEngine:
 
           board.copy(cells = updatedCells)
         }
-        .getOrElse(board)
 
     def isEmpty(x: XCoord, y: YCoord): Boolean =
       Option
@@ -66,18 +65,17 @@ object BoardEngine:
       maybeCanPlace.getOrElse(false)
 
     // Only places the ship if validation is successful
-    def place(ship: Ship, rotation: Rotation, x: XCoord, y: YCoord): Board =
-      if canPlace(ship, rotation, x, y) then
+    def place(ship: Ship, rotation: Rotation, x: XCoord, y: YCoord): Option[Board] =
+      val (xUpdate, yUpdate) =
         rotation match
-          case Vertical =>
-            (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipY) =>
-              oldBoard.update(x, y - shipY, Floating(ship))
-            }
-          case Horizontal =>
-            (0 until ship.size.toInt).foldLeft(board) { (oldBoard, shipX) =>
-              oldBoard.update(x + shipX, y, Floating(ship))
-            }
-      else board
+          case Vertical   => (_ => x, y - _): (Int => XCoord, Int => YCoord)
+          case Horizontal => (x + _, _ => y): (Int => XCoord, Int => YCoord)
+
+      if canPlace(ship, rotation, x, y) then
+        (0 until ship.size.toInt).foldLeft(Option(board)) { (oldBoard, shipCoordInc) =>
+          oldBoard.flatMap(_.update(xUpdate(shipCoordInc), yUpdate(shipCoordInc), Floating(ship)))
+        }
+      else None
 
     def isCompletelySunk(ship: Ship): Boolean =
       val partsSunk = board.cells.flatten.count {
