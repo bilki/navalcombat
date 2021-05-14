@@ -41,6 +41,24 @@ object PlacementView:
 
     Rectangle(gridX, gridY, GRID_WIDTH, GRID_WIDTH)
 
+  def computSidebarShipGraphics(screenWidth: Int, gridMargin: Int): SidebarShipGraphics =
+    def sidebarShipPoint(height: Int): Point =
+      Point(screenWidth - SHIPS_MARGIN, gridMargin + DRAG_AND_DROP_HEIGHT + height)
+
+    def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic =
+      graphicFor(ship)
+        .scaleBy(0.5, 0.5)
+        .withPosition(position.withY(position.y))
+        .alignRight
+
+    SidebarShipGraphics(
+      destroyer = sidebarShipGraphicFor(Destroyer, sidebarShipPoint(Destroyer.ordinal * SHIPS_SPACING)),
+      cruiser = sidebarShipGraphicFor(Cruiser, sidebarShipPoint(Cruiser.ordinal * SHIPS_SPACING)),
+      submarine = sidebarShipGraphicFor(Submarine, sidebarShipPoint(Submarine.ordinal * SHIPS_SPACING)),
+      battleship = sidebarShipGraphicFor(Battleship, sidebarShipPoint(Battleship.ordinal * SHIPS_SPACING)),
+      carrier = sidebarShipGraphicFor(Carrier, sidebarShipPoint(Carrier.ordinal * SHIPS_SPACING))
+    )
+
   def graphicFor(ship: Ship): Graphic =
     ship match
       case Destroyer  => destroyer
@@ -49,16 +67,13 @@ object PlacementView:
       case Battleship => battleship
       case Carrier    => carrier
 
-  def computeSidebarShips(sceneBounds: Rectangle, gridBounds: Rectangle): List[SidebarShip] =
-    val shipAlignPoints =
-      (0 until SHIPS_SPACING * Ship.values.size by SHIPS_SPACING).map(height =>
-        Point(sceneBounds.width - SHIPS_MARGIN, gridBounds.y + DRAG_AND_DROP_HEIGHT + height)
-      )
-
-    Ship.values.toList.map(ship => (ship, graphicFor(ship))).zip(shipAlignPoints).map {
-      case ((ship, shipGraphic), point) =>
-        SidebarShip(ship, shipGraphic.scaleBy(0.5, 0.5).withPosition(point).alignRight)
-    }
+  def sidebarShipGraphicFor(ship: Ship, sidebarShipGraphics: SidebarShipGraphics): Graphic =
+    ship match
+      case Destroyer  => sidebarShipGraphics.destroyer
+      case Cruiser    => sidebarShipGraphics.cruiser
+      case Submarine  => sidebarShipGraphics.submarine
+      case Battleship => sidebarShipGraphics.battleship
+      case Carrier    => sidebarShipGraphics.carrier
 
   // Storyboard:
   //   1. Show message for 0.75 seconds
@@ -172,27 +187,31 @@ object PlacementView:
           position.withX(position.x + NUMBER_MARGIN * 2).withY(position.y - NUMBER_MARGIN)
         )
 
+    val screenWidth = viewModel.sceneSettings.sceneBounds.width
+    val gridMargin  = viewModel.sceneSettings.gridBounds.y
+
     val dragAndDropText =
       postGridMessage(
         "Click and place\nPress R to rotate",
-        Point(viewModel.sceneSettings.sceneBounds.width - SHIPS_MARGIN, viewModel.sceneSettings.gridBounds.y),
+        Point(screenWidth - SHIPS_MARGIN, gridMargin),
         RGBA.Black
       )
 
-    val sidebarShips = viewModel.sidebarShips.map { case SidebarShip(shipType, shipGraphic) =>
-      shipGraphic.modifyMaterial { case bm: Bitmap =>
-        if viewModel.dragging.exists(_.sidebarShip.shipType == shipType) || model.ships.contains(shipType) then
-          bm.toImageEffects.withAlpha(0.0)
-        else bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
+    val sidebarShips = viewModel.sidebarShips.map { ship =>
+      val sidebarShipGraphic = sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics).modifyMaterial {
+        case bm: Bitmap =>
+          bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
       }
+
+      viewModel.sidebarShips.find(_ == ship).map(_ => sidebarShipGraphic)
     }
 
     val basicPlacementSceneNodes =
-      dragAndDropText :: placeMessage :: grid.toList.flatten ++ gridLetters.toList ++ gridNumbers ++ sidebarShips
+      dragAndDropText :: placeMessage :: grid.toList.flatten ++ gridLetters.toList ++ gridNumbers ++ sidebarShips.flatten
 
     val sceneNodes = viewModel.dragging match
-      case Some(PlacingShip(SidebarShip(_, shipGraphic), rotation)) =>
-        val trackingShip = shipGraphic
+      case Some(PlacingShip(ship, rotation)) =>
+        val trackingShip = graphicFor(ship)
           .withScale(Vector2.one)
           .rotateTo(rotation.angle)
           .centerAt(mousePosition)

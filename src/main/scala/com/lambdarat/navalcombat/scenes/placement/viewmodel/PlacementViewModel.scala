@@ -15,15 +15,22 @@ final case class SceneSettings(sceneBounds: Rectangle, gridBounds: Rectangle, mo
 
 final case class Highlighted(position: Coord, highlight: Highlight)
 
-final case class SidebarShip(shipType: Ship, shipGraphic: Graphic)
+final case class PlacingShip(ship: Ship, rotation: Rotation)
 
-final case class PlacingShip(sidebarShip: SidebarShip, rotation: Rotation)
+final case class SidebarShipGraphics(
+    destroyer: Graphic,
+    cruiser: Graphic,
+    submarine: Graphic,
+    battleship: Graphic,
+    carrier: Graphic
+)
 
 final case class PlacementViewModel(
     sceneSettings: SceneSettings,
+    sidebarShipGraphics: SidebarShipGraphics,
     startTime: Seconds,
     placeMsgSignal: Signal[Point],
     highlightedCells: List[Highlighted],
-    sidebarShips: List[SidebarShip],
+    sidebarShips: List[Ship],
     dragging: Option[PlacingShip]
 )
