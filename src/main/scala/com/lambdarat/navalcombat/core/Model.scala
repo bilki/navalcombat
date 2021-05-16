@@ -67,20 +67,20 @@ extension (rotation: Rotation)
       case Rotation.Horizontal => Rotation.Vertical
       case Rotation.Vertical   => Rotation.Horizontal
 
-final case class Board(cells: ArraySeq[ArraySeq[Cell]])
+final case class Board(cells: ArraySeq[ArraySeq[Cell]], ships: Map[Ship, ShipOrientation])
 
 object Board:
   val BOARD_SIZE   = 10
-  def empty: Board = Board(ArraySeq.fill(BOARD_SIZE, BOARD_SIZE)(Cell.Unknown))
+  def empty: Board = Board(ArraySeq.fill(BOARD_SIZE, BOARD_SIZE)(Cell.Unknown), Map.empty)
 
 final case class ShipOrientation(coord: Coord, rotation: Rotation):
 
-  def sections(size: ShipSize): List[Coord] = rotation match
+  def sections(ship: Ship): List[Coord] = rotation match
     case Rotation.Horizontal =>
-      coord :: (1 until size.toInt).toList
+      coord :: (1 until ship.size.toInt).toList
         .map(shiftX => coord.copy(x = coord.x + shiftX))
     case Rotation.Vertical =>
-      coord :: (1 until size.toInt).toList
+      coord :: (1 until ship.size.toInt).toList
         .map(shiftY => coord.copy(y = coord.y - shiftY))
 
-final case class NavalCombatModel(board: Board, ships: Map[Ship, ShipOrientation])
+final case class NavalCombatModel(board: Board)

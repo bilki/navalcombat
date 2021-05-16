@@ -67,7 +67,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
 
       updatedBoard match
         case Some(board) =>
-          Outcome(model.copy(board = board, ships = model.ships + (ship -> ShipOrientation(coord, rotation))))
+          Outcome(model.copy(board = board))
         case None =>
           Outcome(model)
     case _ =>

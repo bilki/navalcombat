@@ -111,7 +111,7 @@ object PlacementView:
           case Cell.Unknown => Some(emptyCell.withPosition(gridSpacePoint))
           case Cell.Miss    => Some(missCell.withPosition(gridSpacePoint))
           case Cell.Floating(partOf) =>
-            model.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
+            model.board.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
               if cellCoord == shipCoords then
                 val shipGraphic = graphicFor(partOf)
 
@@ -133,8 +133,8 @@ object PlacementView:
         val maybeShipSectionHighlighted =
           cell match
             case Cell.Floating(partOf) =>
-              model.ships.get(partOf).flatMap { orientation =>
-                val sections = orientation.sections(partOf.size)
+              model.board.ships.get(partOf).flatMap { orientation =>
+                val sections = orientation.sections(partOf)
                 viewModel.highlightedCells.find(hc => sections.contains(hc.position)).map(_.highlight)
               }
             case _ => None

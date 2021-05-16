@@ -22,7 +22,7 @@ object BoardEngine:
     def get(x: XCoord, y: YCoord): Option[Cell] =
       Option.when(validCoords(x, y))(board.cells(x.toInt)(y.toInt))
 
-    def update(x: XCoord, y: YCoord, value: Cell): Option[Board] =
+    private[engine] def update(x: XCoord, y: YCoord, value: Cell): Option[Board] =
       Option
         .when(validCoords(x, y)) {
           val row          = board.cells(x.toInt)
@@ -32,37 +32,19 @@ object BoardEngine:
           board.copy(cells = updatedCells)
         }
 
-    def isEmpty(x: XCoord, y: YCoord): Boolean =
-      Option
-        .when(validCoords(x, y))(
-          board.cells(x.toInt)(y.toInt) == Cell.Unknown
-        )
-        .getOrElse(false)
+    def isEmpty(x: XCoord, y: YCoord): Boolean = get(x, y).exists(_ == Cell.Unknown)
 
     // x,_ for Horizontal rotation starts from the left-most cell
     // _,y for Vertical rotation starts from the bottom-most cell
     def canPlace(ship: Ship, rotation: Rotation, x: XCoord, y: YCoord): Boolean =
-      val maybeCanPlace = Option.when(validCoords(x, y)) {
-        rotation match
-          case Vertical =>
-            (0 until ship.size.toInt)
-              .forall(shipY =>
-                validCoords(x, y - shipY) && board.get(x, y - shipY).fold(false) {
-                  case Unknown => true
-                  case _       => false
-                }
-              )
-          case Horizontal =>
-            (0 until ship.size.toInt)
-              .forall(shipX =>
-                validCoords(x + shipX, y) && board.get(x + shipX, y).fold(false) {
-                  case Unknown => true
-                  case _       => false
-                }
-              )
-      }
+      lazy val alreadyPlaced = board.ships.keys.toList.contains(ship)
+      lazy val hasValidCoords = rotation match
+        case Vertical =>
+          (0 until ship.size.toInt).forall(yShift => isEmpty(x, y - yShift))
+        case Horizontal =>
+          (0 until ship.size.toInt).forall(xShift => isEmpty(x + xShift, y))
 
-      maybeCanPlace.getOrElse(false)
+      !alreadyPlaced && hasValidCoords
 
     // Only places the ship if validation is successful
     def place(ship: Ship, rotation: Rotation, x: XCoord, y: YCoord): Option[Board] =
@@ -72,9 +54,13 @@ object BoardEngine:
           case Horizontal => (x + _, _ => y): (Int => XCoord, Int => YCoord)
 
       if canPlace(ship, rotation, x, y) then
-        (0 until ship.size.toInt).foldLeft(Option(board)) { (oldBoard, shipCoordInc) =>
+        val maybeUpdatedBoard = (0 until ship.size.toInt).foldLeft(Option(board)) { (oldBoard, shipCoordInc) =>
           oldBoard.flatMap(_.update(xUpdate(shipCoordInc), yUpdate(shipCoordInc), Floating(ship)))
         }
+
+        maybeUpdatedBoard.map(updated =>
+          updated.copy(ships = updated.ships + (ship -> ShipOrientation(Coord(x, y), rotation)))
+        )
       else None
 
     def isCompletelySunk(ship: Ship): Boolean =
