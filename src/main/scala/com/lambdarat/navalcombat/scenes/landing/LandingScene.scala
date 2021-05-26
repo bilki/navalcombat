@@ -43,14 +43,16 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       Material.ImageEffects(Assets.ponderosaImgName)
     ).withPosition(center).alignCenter
 
+    val playBounds = Rectangle(
+      welcomeMessage.x,
+      welcomeMessage.y + 10,
+      Assets.simpleButtonGraphic.bounds.width,
+      Assets.simpleButtonGraphic.bounds.height
+    ).scaleBy(4, 4)
+
     val playButton = Button(
       buttonAssets = Assets.simpleButtonAssets,
-      bounds = Rectangle(
-        welcomeMessage.x,
-        welcomeMessage.y + 10,
-        Assets.simpleButtonGraphic.bounds.width,
-        Assets.simpleButtonGraphic.bounds.height
-      ).scaleBy(4, 4).alignCenter,
+      bounds = playBounds.alignCenter,
       depth = Depth(1)
     ).withUpActions(PlayCombat)
 

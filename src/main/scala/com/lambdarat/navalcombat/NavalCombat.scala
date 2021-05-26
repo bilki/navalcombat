@@ -3,6 +3,7 @@ package com.lambdarat.navalcombat
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.landing.*
 import com.lambdarat.navalcombat.scenes.placement.*
+import com.lambdarat.navalcombat.scenes.player.*
 import com.lambdarat.navalcombat.assets.*
 
 import com.lambdarat.navalcombat.utils.given
@@ -54,7 +55,8 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Outcome(
       NavalCombatViewModel(
         landing = LandingScene.initialLandingViewModel(startupData),
-        placement = PlacementScene.initialPlacementViewModel(startupData)
+        placement = PlacementScene.initialPlacementViewModel(startupData),
+        player = PlayerScene.initial
       )
     )
 

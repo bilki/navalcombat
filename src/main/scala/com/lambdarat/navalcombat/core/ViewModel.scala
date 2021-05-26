@@ -5,6 +5,7 @@ import com.lambdarat.navalcombat.scenes.placement.viewmodel.PlacementViewModel
 import indigo.*
 import indigo.shared.temporal.Signal
 import indigoextras.ui.Button
+import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
 
 extension (rotation: Rotation)
 
@@ -19,4 +20,4 @@ final case class LandingViewModel(
     welcomeMessage: Text
 )
 
-final case class NavalCombatViewModel(landing: LandingViewModel, placement: PlacementViewModel)
+final case class NavalCombatViewModel(landing: LandingViewModel, placement: PlacementViewModel, player: PlayerViewModel)

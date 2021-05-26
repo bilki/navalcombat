@@ -139,7 +139,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
         case (true, None) =>
           val nextPlacingShip = viewModel.sidebarShips.find { ship =>
             val shipGraphic = PlacementView.sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics)
-            context.mouse.wasMouseClickedWithin(shipGraphic.bounds.scaleBy(0.5, 0.5))
+            context.mouse.wasMouseClickedWithin(shipGraphic.bounds)
           }.map(PlacingShip(_, Rotation.Horizontal))
 
           val nextSidebarShips = nextPlacingShip.fold(viewModel.sidebarShips) { dragging =>

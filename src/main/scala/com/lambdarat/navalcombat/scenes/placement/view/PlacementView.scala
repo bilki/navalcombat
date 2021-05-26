@@ -48,7 +48,7 @@ object PlacementView:
     def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic =
       graphicFor(ship)
         .scaleBy(0.5, 0.5)
-        .withPosition(position.withY(position.y))
+        .withPosition(position)
         .alignRight
 
     SidebarShipGraphics(
@@ -212,7 +212,6 @@ object PlacementView:
     val sceneNodes = viewModel.dragging match
       case Some(PlacingShip(ship, rotation)) =>
         val trackingShip = graphicFor(ship)
-          .withScale(Vector2.one)
           .rotateTo(rotation.angle)
           .centerAt(mousePosition)
 
