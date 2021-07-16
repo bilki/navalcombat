@@ -2,7 +2,6 @@ package com.lambdarat.navalcombat.assets
 
 import indigo.*
 import indigo.json.Json
-import indigo.shared.datatypes.FontSpriteSheet
 
 object Fonts:
 

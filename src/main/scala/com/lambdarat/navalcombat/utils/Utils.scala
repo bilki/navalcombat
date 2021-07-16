@@ -27,11 +27,11 @@ end extension
 
 private[utils] val PIplusHalf = Radians(Math.PI * 1.5)
 
-extension (graphic: Graphic)
+extension (graphic: Graphic[Bitmap])
   def scaledHeight: Int = (graphic.bounds.height * graphic.scale.y).toInt
   def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
 
-  def alignCenter: Graphic =
+  def alignCenter: Graphic[Bitmap] =
     // graphic.moveTo(graphic.x - (graphic.size.width / 2), graphic.y - (graphic.size.height / 2))
     val rotationWidth =
       Math.abs(Math.cos(graphic.rotation.toDouble) * graphic.bounds.width) +
@@ -51,13 +51,13 @@ extension (graphic: Graphic)
     graphic.moveBy(xTranslation, yTranslation)
   end alignCenter
 
-  def alignRight: Graphic =
+  def alignRight: Graphic[Bitmap] =
     graphic.moveTo(graphic.position.x - graphic.bounds.width, graphic.bounds.y)
-  def alignBottom: Graphic =
+  def alignBottom: Graphic[Bitmap] =
     graphic.moveTo(graphic.position.x, graphic.bounds.y - (graphic.bounds.height * graphic.scale.y).toInt)
-  def centerAt(position: Point): Graphic = graphic.moveTo(position).alignCenter
+  def centerAt(position: Point): Graphic[Bitmap] = graphic.moveTo(position).alignCenter
 
-extension (bm: Bitmap) def toZeroGraphic: Graphic = Graphic(0, 0, bm)
+extension (bm: Bitmap) def toZeroGraphic: Graphic[Bitmap] = Graphic(0, 0, bm)
 
 extension (rectangle: Rectangle)
   def alignCenter: Rectangle = rectangle.moveBy(Point(-rectangle.width / 2, rectangle.height / 2))
@@ -65,7 +65,6 @@ extension (rectangle: Rectangle)
     rectangle.copy(size = Size((rectangle.width * x).toInt, (rectangle.height.toDouble * y).toInt))
 
 extension [A](signal: Signal[A])
-
   def when[B](pred: A => Boolean, positive: B, negative: B): Signal[B] =
     signal.map(s => if pred(s) then positive else negative)
 

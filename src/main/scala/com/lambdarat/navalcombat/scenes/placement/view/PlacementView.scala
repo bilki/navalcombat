@@ -12,7 +12,7 @@ import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.Material.Bitmap
-import indigoextras.effectmaterials.*
+import indigo.shared.materials.Material.ImageEffects
 
 object PlacementView:
 
@@ -45,7 +45,7 @@ object PlacementView:
     def sidebarShipPoint(height: Int): Point =
       Point(screenWidth - SHIPS_MARGIN, gridMargin + DRAG_AND_DROP_HEIGHT + height)
 
-    def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic =
+    def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic[Bitmap] =
       graphicFor(ship)
         .scaleBy(0.5, 0.5)
         .withPosition(position)
@@ -59,7 +59,7 @@ object PlacementView:
       carrier = sidebarShipGraphicFor(Carrier, sidebarShipPoint(Carrier.ordinal * SHIPS_SPACING))
     )
 
-  def graphicFor(ship: Ship): Graphic =
+  def graphicFor(ship: Ship): Graphic[Bitmap] =
     ship match
       case Destroyer  => destroyer
       case Cruiser    => cruiser
@@ -67,7 +67,7 @@ object PlacementView:
       case Battleship => battleship
       case Carrier    => carrier
 
-  def sidebarShipGraphicFor(ship: Ship, sidebarShipGraphics: SidebarShipGraphics): Graphic =
+  def sidebarShipGraphicFor(ship: Ship, sidebarShipGraphics: SidebarShipGraphics): Graphic[Bitmap] =
     ship match
       case Destroyer  => sidebarShipGraphics.destroyer
       case Cruiser    => sidebarShipGraphics.cruiser
@@ -83,7 +83,7 @@ object PlacementView:
       current: Seconds,
       model: NavalCombatModel,
       viewModel: PlacementViewModel,
-      placementMessage: Text,
+      placementMessage: Text[ImageEffects],
       mousePosition: Point
   ): SceneUpdateFragment =
     val timeSinceEnter   = current - viewModel.startTime
@@ -152,7 +152,7 @@ object PlacementView:
         })
     end grid
 
-    def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text =
+    def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text[ImageEffects] =
       placementMessage
         .withText(msg)
         .withPosition(position)

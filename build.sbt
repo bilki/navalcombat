@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.0.0"
+ThisBuild / scalaVersion := "3.0.1"
 
 def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
   val indigoCmd = for {
@@ -33,8 +33,8 @@ lazy val root = project
     testFrameworks += new TestFramework("munit.Framework"),
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
     libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit"            % "0.7.26" % Test,
-      "org.scalameta" %%% "munit-scalacheck" % "0.7.26" % Test
+      "org.scalameta" %%% "munit"            % "0.7.27" % Test,
+      "org.scalameta" %%% "munit-scalacheck" % "0.7.27" % Test
     )
   )
   .settings(
@@ -44,8 +44,8 @@ lazy val root = project
     windowStartWidth    := 1280,
     windowStartHeight   := 720,
     libraryDependencies ++= Seq(
-      "io.indigoengine" %%% "indigo-json-circe" % "0.8.2",
-      "io.indigoengine" %%% "indigo"            % "0.8.2",
-      "io.indigoengine" %%% "indigo-extras"     % "0.8.2"
+      "io.indigoengine" %%% "indigo-json-circe" % "0.9.0",
+      "io.indigoengine" %%% "indigo"            % "0.9.0",
+      "io.indigoengine" %%% "indigo-extras"     % "0.9.0"
     )
   )
