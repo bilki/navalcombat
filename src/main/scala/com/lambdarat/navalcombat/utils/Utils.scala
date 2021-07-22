@@ -32,21 +32,26 @@ extension (graphic: Graphic[Bitmap])
   def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
 
   def alignCenter: Graphic[Bitmap] =
-    // graphic.moveTo(graphic.x - (graphic.size.width / 2), graphic.y - (graphic.size.height / 2))
+    val isHMirror = graphic.rotation.toDouble >= Radians.PIby2.toDouble &&
+      graphic.rotation.toDouble < PIplusHalf.toDouble
+    val isVMirror = graphic.rotation.toDouble >= Radians.PI.toDouble &&
+      graphic.rotation.toDouble < Radians.`2PI`.toDouble
+
+    val width  = graphic.bounds.width
+    val height = graphic.bounds.height
+
     val rotationWidth =
-      Math.abs(Math.cos(graphic.rotation.toDouble) * graphic.bounds.width) +
-        Math.abs(Math.sin(graphic.rotation.toDouble) * graphic.bounds.height)
+      Math.abs(Math.cos(graphic.rotation.toDouble) * width) +
+        Math.abs(Math.sin(graphic.rotation.toDouble) * height)
     val rotationHeight =
-      Math.abs(Math.sin(graphic.rotation.toDouble) * graphic.bounds.width) +
-        Math.abs(Math.cos(graphic.rotation.toDouble) * graphic.bounds.height)
-    val xTranslation =
-      if graphic.rotation.toDouble >= Radians.PIby2.toDouble && graphic.rotation.toDouble < PIplusHalf.toDouble then
-        (rotationWidth / 2).toInt
-      else -(rotationWidth / 2).toInt
-    val yTranslation =
-      if graphic.rotation.toDouble >= Radians.PI.toDouble && graphic.rotation.toDouble < Radians.`2PI`.toDouble then
-        (rotationHeight / 2).toInt
-      else -(rotationHeight / 2).toInt
+      Math.abs(Math.cos(graphic.rotation.toDouble) * height) +
+        Math.abs(Math.sin(graphic.rotation.toDouble) * width)
+
+    val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
+      case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt)  // Top left
+      case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) // Bottom left
+      case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) // Top right
+      case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) // Bottom right
 
     graphic.moveBy(xTranslation, yTranslation)
   end alignCenter
