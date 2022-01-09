@@ -61,7 +61,6 @@ enum Rotation derives CanEqual:
   case Vertical
 
 extension (rotation: Rotation)
-
   def reverse: Rotation =
     rotation match
       case Rotation.Horizontal => Rotation.Vertical

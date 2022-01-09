@@ -48,9 +48,9 @@ extension (graphic: Graphic[Bitmap])
         Math.abs(Math.sin(graphic.rotation.toDouble) * width)
 
     val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
-      case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt)  // Top left
-      case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) // Bottom left
-      case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) // Top right
+      case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt)   // Top left
+      case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt)  // Bottom left
+      case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt)  // Top right
       case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) // Bottom right
 
     graphic.moveBy(xTranslation, yTranslation)
