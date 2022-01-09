@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.0.2"
+ThisBuild / scalaVersion := "3.1.0"
 
 def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
   val indigoCmd = for {
@@ -24,8 +24,8 @@ lazy val root = project
     SbtIndigo
   )
   .settings(
-    name           := "Naval Combat",
-    description    := "Battleship single player clone",
+    name           := "naval-combat",
+    description    := "Naval Combat: a Battleship single player clone",
     organization   := "com.lambdarat",
     version        := "0.1.0",
     commands      ++= Seq(buildGame, runGame),
@@ -44,8 +44,8 @@ lazy val root = project
     windowStartWidth    := 1280,
     windowStartHeight   := 720,
     libraryDependencies ++= Seq(
-      "io.indigoengine" %%% "indigo-json-circe" % "0.9.2",
-      "io.indigoengine" %%% "indigo"            % "0.9.2",
-      "io.indigoengine" %%% "indigo-extras"     % "0.9.2"
+      "io.indigoengine" %%% "indigo-json-circe" % "0.11.0",
+      "io.indigoengine" %%% "indigo"            % "0.11.0",
+      "io.indigoengine" %%% "indigo-extras"     % "0.11.0"
     )
   )
