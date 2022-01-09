@@ -13,6 +13,11 @@ import indigo.shared.events.GlobalEvent
 import indigo.shared.Outcome
 import indigo.shared.FrameContext
 import indigo.shared.scenegraph.SceneUpdateFragment
+import indigo.shared.datatypes.Rectangle
+import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
+import com.lambdarat.navalcombat.assets.Assets
+
+import indigo.*
 
 object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
@@ -29,21 +34,40 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
 
   def subSystems: Set[SubSystem] = Set.empty
 
-  def initial: PlayerViewModel = PlayerViewModel()
+  def initialPlayerViewModel(setupData: NavalCombatSetupData) =
+    val center = setupData.screenBounds.center
+
+    val gridBounds = PlayerView.computeGridBounds(setupData)
+    val modelSpace = Rectangle(0, 0, setupData.boardSize, setupData.boardSize)
+
+    PlayerViewModel(
+      sceneSettings = SceneSettings(setupData.screenBounds, gridBounds, modelSpace)
+    )
+  end initialPlayerViewModel
 
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
       viewModel: PlayerViewModel
-  ): GlobalEvent => Outcome[PlayerViewModel] = ???
+  ): GlobalEvent => Outcome[PlayerViewModel] =
+    case _ => Outcome(viewModel)
 
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
-  ): GlobalEvent => Outcome[NavalCombatModel] = ???
+  ): GlobalEvent => Outcome[NavalCombatModel] =
+    case _ => Outcome(model)
+
+  val playerTurnMsg = Text(
+    "Player turn",
+    Assets.ponderosaFontKey,
+    Material.ImageEffects(Assets.ponderosaImgName)
+  ).alignCenter
 
   def present(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
       viewModel: PlayerViewModel
-  ): Outcome[SceneUpdateFragment] = ???
+  ): Outcome[SceneUpdateFragment] = Outcome(
+    PlayerView.draw(model, viewModel, playerTurnMsg)
+  )

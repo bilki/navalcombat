@@ -20,6 +20,7 @@ import indigo.shared.temporal.*
 import indigoextras.geometry.*
 import indigoextras.subsystems.*
 import indigoextras.trees.QuadTree
+import com.lambdarat.navalcombat.scenes.player.PlayerScene
 
 object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
@@ -67,7 +68,11 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
 
       updatedBoard match
         case Some(board) =>
-          Outcome(model.copy(board = board))
+          val updatedBoardOutcome = Outcome(model.copy(board = board))
+          if (Ship.values.forall(board.ships.contains))
+            updatedBoardOutcome.addGlobalEvents(SceneEvent.JumpTo(PlayerScene.name))
+          else
+            updatedBoardOutcome
         case None =>
           Outcome(model)
     case _ =>

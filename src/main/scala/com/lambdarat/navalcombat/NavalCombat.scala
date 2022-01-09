@@ -29,7 +29,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Some(LandingScene.name)
 
   def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]] =
-    NonEmptyList(LandingScene, PlacementScene)
+    NonEmptyList(LandingScene, PlacementScene, PlayerScene)
 
   def setup(
       bootData: GameConfig,
@@ -56,7 +56,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
       NavalCombatViewModel(
         landing = LandingScene.initialLandingViewModel(startupData),
         placement = PlacementScene.initialPlacementViewModel(startupData),
-        player = PlayerScene.initial
+        player = PlayerScene.initialPlayerViewModel(startupData)
       )
     )
 
