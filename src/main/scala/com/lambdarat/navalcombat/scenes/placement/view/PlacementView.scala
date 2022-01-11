@@ -211,9 +211,11 @@ object PlacementView:
 
     val sceneNodes = viewModel.dragging match
       case Some(PlacingShip(ship, rotation)) =>
-        val trackingShip = graphicFor(ship)
+        val shipGraphic = graphicFor(ship)
+        val trackingShip = shipGraphic
+          .moveTo(mousePosition)
+          .withRef(shipGraphic.center)
           .rotateTo(rotation.angle)
-          .centerAt(mousePosition)
 
         trackingShip :: basicPlacementSceneNodes
       case None => basicPlacementSceneNodes

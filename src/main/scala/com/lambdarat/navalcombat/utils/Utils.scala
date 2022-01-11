@@ -30,37 +30,12 @@ private[utils] val PIplusHalf = Radians(Math.PI * 1.5)
 extension (graphic: Graphic[Bitmap])
   def scaledHeight: Int = (graphic.bounds.height * graphic.scale.y).toInt
   def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
-
-  def alignCenter: Graphic[Bitmap] =
-    val isHMirror = graphic.rotation.toDouble >= Radians.PIby2.toDouble &&
-      graphic.rotation.toDouble < PIplusHalf.toDouble
-    val isVMirror = graphic.rotation.toDouble >= Radians.PI.toDouble &&
-      graphic.rotation.toDouble < Radians.`2PI`.toDouble
-
-    val width  = graphic.bounds.width
-    val height = graphic.bounds.height
-
-    val rotationWidth =
-      Math.abs(Math.cos(graphic.rotation.toDouble) * width) +
-        Math.abs(Math.sin(graphic.rotation.toDouble) * height)
-    val rotationHeight =
-      Math.abs(Math.cos(graphic.rotation.toDouble) * height) +
-        Math.abs(Math.sin(graphic.rotation.toDouble) * width)
-
-    val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
-      case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt)   // Top left
-      case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt)  // Bottom left
-      case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt)  // Top right
-      case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) // Bottom right
-
-    graphic.moveBy(xTranslation, yTranslation)
-  end alignCenter
+  def center: Point = Point(graphic.bounds.width / 2, graphic.bounds.height / 2)
 
   def alignRight: Graphic[Bitmap] =
     graphic.moveTo(graphic.position.x - graphic.bounds.width, graphic.bounds.y)
   def alignBottom: Graphic[Bitmap] =
     graphic.moveTo(graphic.position.x, graphic.bounds.y - (graphic.bounds.height * graphic.scale.y).toInt)
-  def centerAt(position: Point): Graphic[Bitmap] = graphic.moveTo(position).alignCenter
 
 extension (bm: Bitmap) def toZeroGraphic: Graphic[Bitmap] = Graphic(0, 0, bm)
 
