@@ -27,8 +27,6 @@ final case class SidebarShipGraphics(
 final case class PlacementViewModel(
     sceneSettings: SceneSettings,
     sidebarShipGraphics: SidebarShipGraphics,
-    startTime: Seconds,
-    placeMsgSignal: Signal[Point],
     highlightedCells: List[Highlighted],
     sidebarShips: List[Ship],
     dragging: Option[PlacingShip]

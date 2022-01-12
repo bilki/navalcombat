@@ -3,7 +3,6 @@ package com.lambdarat.navalcombat.scenes.landing
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.scenes.placement.PlacementScene
-import com.lambdarat.navalcombat.scenes.placement.PaintGrid
 import com.lambdarat.navalcombat.utils.*
 import com.lambdarat.navalcombat.utils.given
 
@@ -88,7 +87,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
         viewModel.copy(play = btn)
       }
     case PlayCombat =>
-      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(PlacementScene.name), PaintGrid)
+      Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(PlacementScene.name))
     case _ =>
       Outcome(viewModel)
 

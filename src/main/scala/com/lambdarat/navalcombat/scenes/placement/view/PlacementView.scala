@@ -32,9 +32,6 @@ object PlacementView:
   private val DRAG_AND_DROP_HEIGHT = 60
   private val PLACEMENT_MSG_MARGIN = 15
 
-  val movePlacementMsg =
-    SignalReader[Point, Point](start => Signal.Lerp(start, Point(start.x, PLACEMENT_MSG_MARGIN), Seconds(1)))
-
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
     val gridX = (setupData.screenBounds.width - GRID_WIDTH) / 2
     val gridY = GRID_TOP_MARGIN
@@ -75,25 +72,12 @@ object PlacementView:
       case Battleship => sidebarShipGraphics.battleship
       case Carrier    => sidebarShipGraphics.carrier
 
-  // Storyboard:
-  //   1. Show message for 0.75 seconds
-  //   2. Move message to the top in 1 second
-  //   3. After 1.75 seconds, paint the grid and the ships to be placed
   def draw(
-      current: Seconds,
       model: NavalCombatModel,
       viewModel: PlacementViewModel,
       placementMessage: Text[ImageEffects],
       mousePosition: Point
   ): SceneUpdateFragment =
-    val timeSinceEnter   = current - viewModel.startTime
-    val placeMsgShowTime = Seconds(0.75)
-    val showGridTime     = placeMsgShowTime + Seconds(1)
-
-    val placeMessage = placementMessage.moveTo(viewModel.placeMsgSignal.at(timeSinceEnter - placeMsgShowTime))
-
-    val showGrid = Signal.Time.when(_ >= showGridTime, positive = 1.0, negative = 0.0)
-
     val modelSpace = viewModel.sceneSettings.modelSpace
 
     val grid =
@@ -148,11 +132,10 @@ object PlacementView:
         maybeCellGraphic.map(_.modifyMaterial { case bm: Bitmap =>
           bm.toImageEffects
             .withOverlay(Fill.Color(highlightColor))
-            .withAlpha(showGrid.at(timeSinceEnter))
         })
     end grid
 
-    def postGridMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text[ImageEffects] =
+    def placeMessage(msg: String, position: Point, color: RGBA = RGBA.Black): Text[ImageEffects] =
       placementMessage
         .withText(msg)
         .withPosition(position)
@@ -160,7 +143,6 @@ object PlacementView:
           Material
             .ImageEffects(ponderosaImgName)
             .withOverlay(Fill.Color(color))
-            .withAlpha(showGrid.at(timeSinceEnter))
         )
         .alignRight
 
@@ -172,7 +154,7 @@ object PlacementView:
         val cellPoint = cellCoord.toPoint
         val position  = cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds)
 
-        postGridMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
+        placeMessage(letter.toString, position.withX(position.x - LETTER_MARGIN).withY(position.y + LETTER_MARGIN))
 
     // Column numbers
     val gridNumbers =
@@ -182,7 +164,7 @@ object PlacementView:
         val cellPoint = cellCoord.toPoint
         val position  = cellPoint.transform(modelSpace, viewModel.sceneSettings.gridBounds)
 
-        postGridMessage(
+        placeMessage(
           number.toString,
           position.withX(position.x + NUMBER_MARGIN * 2).withY(position.y - NUMBER_MARGIN)
         )
@@ -190,24 +172,23 @@ object PlacementView:
     val screenWidth = viewModel.sceneSettings.sceneBounds.width
     val gridMargin  = viewModel.sceneSettings.gridBounds.y
 
+    val title =
+      placeMessage("Placement Screen", Point(screenWidth / 2, PLACEMENT_MSG_MARGIN)).alignCenter
+
     val dragAndDropText =
-      postGridMessage(
+      placeMessage(
         "Click and place\nPress R to rotate",
         Point(screenWidth - SHIPS_MARGIN, gridMargin),
         RGBA.Black
       )
 
     val sidebarShips = viewModel.sidebarShips.map { ship =>
-      val sidebarShipGraphic = sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics).modifyMaterial {
-        case bm: Bitmap =>
-          bm.toImageEffects.withAlpha(showGrid.at(timeSinceEnter))
-      }
-
+      val sidebarShipGraphic = sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics)
       viewModel.sidebarShips.find(_ == ship).map(_ => sidebarShipGraphic)
     }
 
     val basicPlacementSceneNodes =
-      dragAndDropText :: placeMessage :: grid.toList.flatten ++ gridLetters.toList ++ gridNumbers ++ sidebarShips.flatten
+      dragAndDropText :: title :: grid.toList.flatten ++ gridLetters.toList ++ gridNumbers ++ sidebarShips.flatten
 
     val sceneNodes = viewModel.dragging match
       case Some(PlacingShip(ship, rotation)) =>

@@ -52,8 +52,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
     PlacementViewModel(
       sceneSettings = SceneSettings(setupData.screenBounds, gridBounds, modelSpace),
       sidebarShipGraphics = PlacementView.computSidebarShipGraphics(setupData.screenBounds.width, gridBounds.y),
-      startTime = Seconds.zero,
-      placeMsgSignal = PlacementView.movePlacementMsg.run(center),
       highlightedCells = List.empty[Highlighted],
       sidebarShips = Ship.values.toList,
       dragging = None
@@ -129,13 +127,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
-    case PaintGrid =>
-      val gridBounds  = viewModel.sceneSettings.gridBounds
-      val sceneBounds = viewModel.sceneSettings.sceneBounds
-
-      val boardSize = context.startUpData.boardSize
-
-      Outcome(viewModel.copy(startTime = context.running))
     case FrameTick =>
       val gridBounds = viewModel.sceneSettings.gridBounds
       val modelSpace = viewModel.sceneSettings.modelSpace
@@ -196,9 +187,6 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): Outcome[SceneUpdateFragment] =
-    Outcome(PlacementView.draw(context.running, model, viewModel, placementMessage, context.mouse.position))
+    Outcome(PlacementView.draw(model, viewModel, placementMessage, context.mouse.position))
 
-case object PaintGrid                                                  extends GlobalEvent
 case class PlaceShip(shipType: Ship, coord: Coord, rotation: Rotation) extends GlobalEvent
-
-given CanEqual[PaintGrid.type, GlobalEvent] = CanEqual.derived
