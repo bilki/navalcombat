@@ -57,8 +57,7 @@ enum Cell derives CanEqual:
   case Floating(partOf: Ship)
 
 enum Rotation derives CanEqual:
-  case Horizontal
-  case Vertical
+  case Horizontal, Vertical
 
 extension (rotation: Rotation)
   def reverse: Rotation =

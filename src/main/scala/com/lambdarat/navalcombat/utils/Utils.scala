@@ -30,7 +30,7 @@ private[utils] val PIplusHalf = Radians(Math.PI * 1.5)
 extension (graphic: Graphic[Bitmap])
   def scaledHeight: Int = (graphic.bounds.height * graphic.scale.y).toInt
   def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
-  def center: Point = Point(graphic.bounds.width / 2, graphic.bounds.height / 2)
+  def center: Point     = Point(graphic.bounds.width / 2, graphic.bounds.height / 2)
 
   def alignRight: Graphic[Bitmap] =
     graphic.moveTo(graphic.position.x - graphic.bounds.width, graphic.bounds.y)

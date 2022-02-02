@@ -1,11 +1,12 @@
 package com.lambdarat.navalcombat.scenes.placement
 
+import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.draw.Graphics
 import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.placement.view.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
-import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.*
 
@@ -84,7 +85,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel
   ): List[Highlighted] =
     val shipSize   = dragged.ship.size
-    val shipBounds = PlacementView.graphicFor(dragged.ship).bounds
+    val shipBounds = Graphics.graphicFor(dragged.ship).bounds
     val shipCenter = mousePosition
     val holeSize   = shipBounds.width / shipSize.toInt
 
