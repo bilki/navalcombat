@@ -7,13 +7,20 @@ def indigoCommand(indigoTask: TaskKey[Unit], name: String, full: Boolean = false
     optJS = if (full) Compile / fullOptJS else Compile / fastOptJS
     (jsResult, _) <- Project.runTask(optJS, compiled)
     (indigo, _)   <- Project.runTask(indigoTask, jsResult)
-  } yield indigo
+    (output, _)   <- if (full) Project.runTask(removeMap, indigo) else Option((indigo, Value(())))
+  } yield output
 
   indigoCmd.getOrElse {
     println(s"Game command [$name] failed!")
     state.fail
   }
 }
+
+lazy val buildFullFolder =
+  Def.setting[File](baseDirectory.value / "target" / "indigoBuildFull") // TODO change indigo sbt task output type
+
+lazy val removeMap = taskKey[Unit]("Removes the .map file from the full output folder")
+removeMap := io.IO.delete(buildFullFolder.value / "scripts" / s"${name.value}-opt.js.map")
 
 lazy val buildGame     = indigoCommand(indigoBuild, "buildGame")
 lazy val buildFullGame = indigoCommand(indigoBuildFull, "buildFullGame", full = true)
@@ -39,7 +46,7 @@ lazy val root = project
       "org.scalameta" %%% "munit"            % "0.7.29" % Test,
       "org.scalameta" %%% "munit-scalacheck" % "0.7.29" % Test
     ),
-    gitHubPagesSiteDir := baseDirectory.value / "target" / "indigoBuildFull" // TODO change indigo sbt task output type
+    gitHubPagesSiteDir := buildFullFolder.value
   )
   .settings(
     showCursor          := true,
