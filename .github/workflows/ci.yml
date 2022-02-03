@@ -1,0 +1,29 @@
+name: Update GitHub Pages
+
+on:
+  push:
+    branches:
+       - main
+
+jobs:
+  github-pages:
+    name: Updates GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2.4.0
+
+      - name: Enable Coursier cache
+        uses: coursier/cache-action@v6.3
+
+      - name: Setup Coursier
+        uses: coursier/setup-action@v1.1.2
+        with:
+          jvm: adopt:11
+          apps: sbtn
+
+      - name: Run SBT task
+        shell: bash
+        run: sbt buildFullGame publishToGitHubPages
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
