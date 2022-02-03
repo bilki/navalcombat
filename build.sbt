@@ -1,11 +1,12 @@
 ThisBuild / scalaVersion := "3.1.0"
 
-def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(name) { state =>
+def indigoCommand(indigoTask: TaskKey[Unit], name: String, full: Boolean = false) = Command.command(name) { state =>
   val indigoCmd = for {
     (compiled, result) <- Project.runTask(Compile / Keys.compile, state)
     _                  <- result.toEither.toOption
-    (fastJS, _)        <- Project.runTask(Compile / fastOptJS, compiled)
-    (indigo, _)        <- Project.runTask(indigoTask, fastJS)
+    optJS = if (full) Compile / fullOptJS else Compile / fastOptJS
+    (jsResult, _) <- Project.runTask(optJS, compiled)
+    (indigo, _)   <- Project.runTask(indigoTask, jsResult)
   } yield indigo
 
   indigoCmd.getOrElse {
@@ -14,28 +15,31 @@ def indigoCommand(indigoTask: TaskKey[Unit], name: String) = Command.command(nam
   }
 }
 
-lazy val buildGame = indigoCommand(indigoBuild, "buildGame")
-lazy val runGame   = indigoCommand(indigoRun, "runGame")
+lazy val buildGame     = indigoCommand(indigoBuild, "buildGame")
+lazy val buildFullGame = indigoCommand(indigoBuildFull, "buildFullGame", full = true)
+lazy val runGame       = indigoCommand(indigoRun, "runGame")
 
 lazy val root = project
   .in(file("."))
   .enablePlugins(
     ScalaJSPlugin,
-    SbtIndigo
+    SbtIndigo,
+    GitHubPagesPlugin
   )
   .settings(
     name           := "naval-combat",
     description    := "Naval Combat: a Battleship single player clone",
     organization   := "com.lambdarat",
     version        := "0.1.0",
-    commands      ++= Seq(buildGame, runGame),
+    commands      ++= Seq(buildGame, buildFullGame, runGame),
     scalacOptions ++= Seq("-language:strictEquality"),
     testFrameworks += new TestFramework("munit.Framework"),
     Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit"            % "0.7.29" % Test,
       "org.scalameta" %%% "munit-scalacheck" % "0.7.29" % Test
-    )
+    ),
+    gitHubPagesSiteDir := baseDirectory.value / "target" / "indigoBuildFull" // TODO change indigo sbt task output type
   )
   .settings(
     showCursor          := true,
