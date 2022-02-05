@@ -11,19 +11,23 @@ import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
-import indigo.Material.Bitmap
-import indigo.shared.materials.Material.ImageEffects
+import indigo.Material.ImageEffects
 import com.lambdarat.navalcombat.draw.{Axis, Graphics, Grid}
 
 object PlacementView:
-  def placementViewCellGraphics(board: Board)(cell: Cell, coord: Coord, position: Point): Option[Graphic[Bitmap]] =
+  def placementViewCellGraphics(
+      board: Board,
+      highlighted: List[Highlighted]
+  )(cell: Cell, coord: Coord, position: Point): Option[Graphic[ImageEffects]] =
+    val highlightColor = getHighlightColor(board, highlighted, cell, coord)
+
     cell match
-      case Cell.Unknown => Some(emptyCell.withPosition(position))
+      case Cell.Unknown => Some(Graphics.empty(highlightColor).withPosition(position))
       case Cell.Miss    => Some(missCell.withPosition(position))
       case Cell.Floating(partOf) =>
         board.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
           if coord == shipCoords then
-            val shipGraphic = Graphics.graphicFor(partOf)
+            val shipGraphic = Graphics.graphicFor(partOf, highlightColor)
 
             val rotatedShip = shipRotation match
               case Rotation.Horizontal =>
@@ -37,13 +41,10 @@ object PlacementView:
             Some(rotatedShip)
           else None
         }
-      case Cell.Sunk(partOf) => Some(emptyCell.withPosition(position))
+      case Cell.Sunk(partOf) => Some(Graphics.empty(highlightColor).withPosition(position))
   end placementViewCellGraphics
 
-  def placementViewHighlightGraphics(
-      board: Board,
-      highlighted: List[Highlighted]
-  )(cell: Cell, coord: Coord, graphic: Graphic[Bitmap]): Graphic[ImageEffects] =
+  def getHighlightColor(board: Board, highlighted: List[Highlighted], cell: Cell, coord: Coord): Highlight =
     val maybeCurrentCoordHighlighted = highlighted.find(_.position == coord).map(_.highlight)
     val maybeShipSectionHighlighted =
       cell match
@@ -54,14 +55,8 @@ object PlacementView:
           }
         case _ => None
 
-    val highlightColor =
-      maybeCurrentCoordHighlighted.orElse(maybeShipSectionHighlighted).getOrElse(Highlight.Neutral) match
-        case Highlight.Neutral  => RGBA.Zero
-        case Highlight.NotValid => RGBA.Yellow
-        case Highlight.Valid    => RGBA.White
-
-    graphic.modifyMaterial(_.toImageEffects.withOverlay(Fill.Color(highlightColor)))
-  end placementViewHighlightGraphics
+    maybeCurrentCoordHighlighted.orElse(maybeShipSectionHighlighted).getOrElse(Highlight.Neutral)
+  end getHighlightColor
 
   def createMessage(text: Text[ImageEffects])(msg: String): Text[ImageEffects] =
     text
@@ -87,7 +82,7 @@ object PlacementView:
     def sidebarShipPoint(height: Int): Point =
       Point(screenWidth - SHIPS_MARGIN, gridMargin + DRAG_AND_DROP_HEIGHT + height)
 
-    def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic[Bitmap] =
+    def sidebarShipGraphicFor(ship: Ship, position: Point): Graphic[ImageEffects] =
       Graphics
         .graphicFor(ship)
         .scaleBy(0.5, 0.5)
@@ -102,7 +97,7 @@ object PlacementView:
       carrier = sidebarShipGraphicFor(Carrier, sidebarShipPoint(Carrier.ordinal * SHIPS_SPACING))
     )
 
-  def sidebarShipGraphicFor(ship: Ship, sidebarShipGraphics: SidebarShipGraphics): Graphic[Bitmap] =
+  def sidebarShipGraphicFor(ship: Ship, sidebarShipGraphics: SidebarShipGraphics): Graphic[ImageEffects] =
     ship match
       case Destroyer  => sidebarShipGraphics.destroyer
       case Cruiser    => sidebarShipGraphics.cruiser
@@ -121,10 +116,9 @@ object PlacementView:
     val originSpace     = viewModel.sceneSettings.modelSpace
     val targetSpace     = viewModel.sceneSettings.gridBounds
     val board           = model.board
-    val cellGraphicsFun = placementViewCellGraphics(model.board)
-    val highlightFun    = placementViewHighlightGraphics(model.board, viewModel.highlightedCells)
+    val cellGraphicsFun = placementViewCellGraphics(model.board, viewModel.highlightedCells)
 
-    val grid        = Grid.draw(originSpace, targetSpace, model.board, cellGraphicsFun, Some(highlightFun))
+    val grid        = Grid.draw(originSpace, targetSpace, model.board, cellGraphicsFun)
     val lettersAxis = Axis.drawLetters(originSpace, targetSpace, putMessage)
     val numbersAxis = Axis.drawNumbers(originSpace, targetSpace, putMessage)
 
@@ -152,7 +146,7 @@ object PlacementView:
           .withRef(shipGraphic.center)
           .rotateTo(rotation.angle)
 
-        trackingShip :: basicPlacementSceneNodes
+        basicPlacementSceneNodes :+ trackingShip
       case None => basicPlacementSceneNodes
 
     SceneUpdateFragment(sceneNodes)

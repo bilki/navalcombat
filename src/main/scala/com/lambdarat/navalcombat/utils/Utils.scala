@@ -4,7 +4,7 @@ import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.landing.LandingEvents.*
 
 import indigo.*
-import indigo.Material.Bitmap
+import indigo.Material.{Bitmap, ImageEffects}
 import indigoextras.geometry.Vertex
 
 given CanEqual[Option[?], Option[?]]   = CanEqual.derived
@@ -27,14 +27,14 @@ end extension
 
 private[utils] val PIplusHalf = Radians(Math.PI * 1.5)
 
-extension (graphic: Graphic[Bitmap])
+extension (graphic: Graphic[ImageEffects])
   def scaledHeight: Int = (graphic.bounds.height * graphic.scale.y).toInt
   def scaledWidth: Int  = (graphic.bounds.width * graphic.scale.x).toInt
   def center: Point     = Point(graphic.bounds.width / 2, graphic.bounds.height / 2)
 
-  def alignRight: Graphic[Bitmap] =
+  def alignRight: Graphic[ImageEffects] =
     graphic.moveTo(graphic.position.x - graphic.bounds.width, graphic.bounds.y)
-  def alignBottom: Graphic[Bitmap] =
+  def alignBottom: Graphic[ImageEffects] =
     graphic.moveTo(graphic.position.x, graphic.bounds.y - (graphic.bounds.height * graphic.scale.y).toInt)
 
 extension (bm: Bitmap) def toZeroGraphic: Graphic[Bitmap] = Graphic(0, 0, bm)

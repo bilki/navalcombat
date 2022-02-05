@@ -3,7 +3,7 @@ package com.lambdarat.navalcombat.scenes.placement.viewmodel
 import com.lambdarat.navalcombat.core.*
 
 import indigo.*
-import indigo.shared.materials.Material.Bitmap
+import indigo.Material.ImageEffects
 
 enum Highlight derives CanEqual:
   case NotValid
@@ -17,11 +17,11 @@ final case class Highlighted(position: Coord, highlight: Highlight)
 final case class PlacingShip(ship: Ship, rotation: Rotation)
 
 final case class SidebarShipGraphics(
-    destroyer: Graphic[Bitmap],
-    cruiser: Graphic[Bitmap],
-    submarine: Graphic[Bitmap],
-    battleship: Graphic[Bitmap],
-    carrier: Graphic[Bitmap]
+    destroyer: Graphic[ImageEffects],
+    cruiser: Graphic[ImageEffects],
+    submarine: Graphic[ImageEffects],
+    battleship: Graphic[ImageEffects],
+    carrier: Graphic[ImageEffects]
 )
 
 final case class PlacementViewModel(

@@ -13,12 +13,11 @@ import com.lambdarat.navalcombat.core.Ship
 import com.lambdarat.navalcombat.core.Ship.*
 
 import indigo.*
-import indigo.Material.Bitmap
-import indigo.shared.materials.Material.ImageEffects
+import indigo.Material.ImageEffects
 import com.lambdarat.navalcombat.draw.{Axis, Grid}
 
 object PlayerView:
-  def playerViewCellGraphics(cell: Cell, coord: Coord, position: Point): Option[Graphic[Bitmap]] =
+  def playerViewCellGraphics(cell: Cell, coord: Coord, position: Point): Option[Graphic[ImageEffects]] =
     val graphic = cell match
       case Cell.Unknown          => emptyCell.withPosition(position)
       case Cell.Miss             => missCell.withPosition(position)

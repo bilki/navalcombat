@@ -23,15 +23,24 @@ object Assets:
 
   private val cellBitmap = Material.Bitmap(cellsName).toZeroGraphic
 
-  val emptyCell  = cellBitmap.withCrop(0, 0, 64, 64)
-  val missCell   = cellBitmap.withCrop(0, 64, 64, 64)
-  val sunkCell   = cellBitmap.withCrop(64, 0, 64, 64)
-  val hitCell    = cellBitmap.withCrop(64, 64, 64, 64)
-  val cruiser    = cellBitmap.withCrop(128, 0, 192, 64)
-  val submarine  = cellBitmap.withCrop(128, 64, 192, 64)
-  val carrier    = cellBitmap.withCrop(0, 128, 320, 64)
-  val battleship = cellBitmap.withCrop(0, 192, 256, 64)
-  val destroyer  = cellBitmap.withCrop(0, 256, 128, 64)
+  val emptyCell  = cellBitmap.withCrop(0, 0, 64, 64).modifyMaterial(_.toImageEffects)
+  val missCell   = cellBitmap.withCrop(0, 64, 64, 64).modifyMaterial(_.toImageEffects)
+  val sunkCell   = cellBitmap.withCrop(64, 0, 64, 64).modifyMaterial(_.toImageEffects)
+  val hitCell    = cellBitmap.withCrop(64, 64, 64, 64).modifyMaterial(_.toImageEffects)
+  val cruiser    = cellBitmap.withCrop(128, 0, 192, 64).modifyMaterial(_.toImageEffects)
+  val submarine  = cellBitmap.withCrop(128, 64, 192, 64).modifyMaterial(_.toImageEffects)
+  val carrier    = cellBitmap.withCrop(0, 128, 320, 64).modifyMaterial(_.toImageEffects)
+  val battleship = cellBitmap.withCrop(0, 192, 256, 64).modifyMaterial(_.toImageEffects)
+  val destroyer  = cellBitmap.withCrop(0, 256, 128, 64).modifyMaterial(_.toImageEffects)
+
+  val notValidEmptyCell = emptyCell.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
+  val validEmptyCell    = emptyCell.modifyMaterial(_.withOverlay(Fill.Color(RGBA.White)))
+
+  val notValidCruiser    = cruiser.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
+  val notValidSubmarine  = submarine.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
+  val notValidCarrier    = carrier.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
+  val notValidBattleship = battleship.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
+  val notValidDestroyer  = destroyer.modifyMaterial(_.withOverlay(Fill.Color(RGBA.Yellow)))
 
   val simpleButtonGraphic =
     Graphic(34, 10, Material.Bitmap(simpleButtonName).toImageEffects.withSaturation(0))
