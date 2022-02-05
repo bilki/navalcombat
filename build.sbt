@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.1.0"
+ThisBuild / scalaVersion := "3.1.1"
 
 def indigoCommand(indigoTask: TaskKey[Unit], name: String, full: Boolean = false) = Command.command(name) { state =>
   val indigoCmd = for {

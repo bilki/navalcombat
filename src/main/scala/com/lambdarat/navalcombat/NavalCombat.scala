@@ -1,17 +1,15 @@
 package com.lambdarat.navalcombat
 
+import com.lambdarat.navalcombat.assets.*
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.landing.*
 import com.lambdarat.navalcombat.scenes.placement.*
 import com.lambdarat.navalcombat.scenes.player.*
-import com.lambdarat.navalcombat.assets.*
-
 import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.ExtraColors.*
 
 import indigo.*
 import indigo.scenes.*
-import indigo.shared.events.EventFilters
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 

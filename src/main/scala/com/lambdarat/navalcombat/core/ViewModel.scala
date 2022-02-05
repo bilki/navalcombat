@@ -1,12 +1,11 @@
 package com.lambdarat.navalcombat.core
 
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.PlacementViewModel
+import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
 
 import indigo.*
-import indigo.shared.materials.Material.ImageEffects
-import indigo.shared.temporal.Signal
+import indigo.Material.ImageEffects
 import indigoextras.ui.Button
-import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
 
 extension (rotation: Rotation)
   def angle: Radians =

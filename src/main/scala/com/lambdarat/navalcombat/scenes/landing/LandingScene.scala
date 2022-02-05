@@ -8,13 +8,8 @@ import com.lambdarat.navalcombat.utils.given
 
 import indigo.*
 import indigo.scenes.*
-import indigo.shared.*
-import indigo.shared.events.*
-import indigo.shared.scenegraph.SceneUpdateFragment
-import indigo.shared.subsystems.SubSystem
 import indigoextras.effectmaterials.*
-import indigoextras.ui.Button
-import indigoextras.ui.ButtonAssets
+import indigoextras.ui.{Button, ButtonAssets}
 
 import LandingEvents.*
 

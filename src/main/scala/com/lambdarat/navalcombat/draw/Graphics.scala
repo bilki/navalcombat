@@ -1,14 +1,14 @@
 package com.lambdarat.navalcombat.draw
 
-import indigo._
-import indigo.Material.ImageEffects
 import com.lambdarat.navalcombat.assets.Assets.*
-import com.lambdarat.navalcombat.core.Ship
+import com.lambdarat.navalcombat.core.{Cell, Ship}
 import com.lambdarat.navalcombat.core.Ship.*
-import com.lambdarat.navalcombat.core.Cell
-import indigo.shared.datatypes.Fill.Color
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.Highlight
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.Highlight.*
+
+import indigo.*
+import indigo.Material.ImageEffects
+import indigo.Fill.Color
 
 object Graphics:
   def graphicFor(ship: Ship): Graphic[ImageEffects] =

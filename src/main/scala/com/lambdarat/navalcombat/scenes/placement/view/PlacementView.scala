@@ -1,18 +1,18 @@
 package com.lambdarat.navalcombat.scenes.placement.view
 
 import com.lambdarat.navalcombat.assets.Assets.*
-import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.Ship.*
+import com.lambdarat.navalcombat.draw.{Axis, Graphics, Grid}
 import com.lambdarat.navalcombat.engine.BoardEngine.*
-import com.lambdarat.navalcombat.scenes.placement.viewmodel.given
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
-import com.lambdarat.navalcombat.utils.given
+import com.lambdarat.navalcombat.scenes.placement.viewmodel.given
 import com.lambdarat.navalcombat.utils.*
+import com.lambdarat.navalcombat.utils.given
 
 import indigo.*
 import indigo.Material.ImageEffects
-import com.lambdarat.navalcombat.draw.{Axis, Graphics, Grid}
 
 object PlacementView:
   def placementViewCellGraphics(

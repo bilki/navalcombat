@@ -1,12 +1,11 @@
 package com.lambdarat.navalcombat.engine
 
-import com.lambdarat.navalcombat.core.*
-
 import munit.ScalaCheckSuite
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 
+import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.generators.ModelGen
 import com.lambdarat.navalcombat.generators.ModelGen.validCoord
 import com.lambdarat.navalcombat.generators.ModelGen.{

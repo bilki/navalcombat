@@ -1,9 +1,9 @@
 package com.lambdarat.navalcombat.draw
 
-import indigo._
-import indigo.shared.materials.Material.ImageEffects
+import indigo.*
+import indigo.Material.ImageEffects
 import com.lambdarat.navalcombat.core.{Coord, XCoord, YCoord}
-import com.lambdarat.navalcombat.utils._
+import com.lambdarat.navalcombat.utils.*
 
 object Axis:
   private val FIRST_LETTER      = 'A'

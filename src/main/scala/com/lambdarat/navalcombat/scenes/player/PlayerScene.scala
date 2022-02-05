@@ -1,23 +1,12 @@
 package com.lambdarat.navalcombat.scenes.player
 
-import indigo.scenes.Scene
-import indigo.scenes.Lens
-import com.lambdarat.navalcombat.core.NavalCombatSetupData
-import com.lambdarat.navalcombat.core.NavalCombatModel
-import com.lambdarat.navalcombat.core.NavalCombatViewModel
-import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
-import indigo.scenes.SceneName
-import indigo.shared.events.EventFilters
-import indigo.shared.subsystems.SubSystem
-import indigo.shared.events.GlobalEvent
-import indigo.shared.Outcome
-import indigo.shared.FrameContext
-import indigo.shared.scenegraph.SceneUpdateFragment
-import indigo.shared.datatypes.Rectangle
-import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
 import com.lambdarat.navalcombat.assets.Assets
+import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
+import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
 
 import indigo.*
+import indigo.scenes.*
 
 object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest

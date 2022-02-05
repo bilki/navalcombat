@@ -3,9 +3,8 @@ package com.lambdarat.navalcombat.generators
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.engine.BoardEngine.*
 
-import org.scalacheck.Arbitrary
+import org.scalacheck.*
 import org.scalacheck.Arbitrary.*
-import org.scalacheck.Gen
 
 object ModelGen:
   given Arbitrary[Ship] = Arbitrary(Gen.oneOf(Ship.values.toList))

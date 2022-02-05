@@ -1,20 +1,16 @@
 package com.lambdarat.navalcombat.scenes.player
 
-import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
-import com.lambdarat.navalcombat.core.*
-import com.lambdarat.navalcombat.engine.BoardEngine.*
-import com.lambdarat.navalcombat.core.Cell.*
-import com.lambdarat.navalcombat.core.Cell
 import com.lambdarat.navalcombat.assets.Assets.*
-import com.lambdarat.navalcombat.utils.*
-import com.lambdarat.navalcombat.core.ShipOrientation
-import com.lambdarat.navalcombat.core.Rotation
-import com.lambdarat.navalcombat.core.Ship
+import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.core.Cell.*
 import com.lambdarat.navalcombat.core.Ship.*
+import com.lambdarat.navalcombat.draw.{Axis, Grid}
+import com.lambdarat.navalcombat.engine.BoardEngine.*
+import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
+import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.Material.ImageEffects
-import com.lambdarat.navalcombat.draw.{Axis, Grid}
 
 object PlayerView:
   def playerViewCellGraphics(cell: Cell, coord: Coord, position: Point): Option[Graphic[ImageEffects]] =

@@ -1,10 +1,11 @@
 package com.lambdarat.navalcombat.draw
 
-import indigo._
-import indigo.shared.materials.Material.ImageEffects
 import com.lambdarat.navalcombat.core.{Board, Cell, Coord, XCoord, YCoord}
-import com.lambdarat.navalcombat.engine.BoardEngine._
-import com.lambdarat.navalcombat.utils._
+import com.lambdarat.navalcombat.engine.BoardEngine.*
+import com.lambdarat.navalcombat.utils.*
+
+import indigo.*
+import indigo.Material.ImageEffects
 
 object Grid:
   def draw(

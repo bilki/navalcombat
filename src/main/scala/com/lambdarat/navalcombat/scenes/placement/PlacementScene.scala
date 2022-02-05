@@ -1,27 +1,21 @@
 package com.lambdarat.navalcombat.scenes.placement
 
 import com.lambdarat.navalcombat.assets.Assets
-import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.core.given
 import com.lambdarat.navalcombat.draw.Graphics
 import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.placement.view.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
-import com.lambdarat.navalcombat.utils.given
+import com.lambdarat.navalcombat.scenes.player.PlayerScene
 import com.lambdarat.navalcombat.utils.*
+import com.lambdarat.navalcombat.utils.given
 
 import indigo.*
 import indigo.scenes.*
-import indigo.shared.*
-import indigo.shared.events.*
-import indigo.shared.scenegraph.SceneUpdateFragment
-import indigo.shared.subsystems.SubSystem
-import indigo.shared.temporal.*
-
 import indigoextras.geometry.*
 import indigoextras.subsystems.*
 import indigoextras.trees.QuadTree
-import com.lambdarat.navalcombat.scenes.player.PlayerScene
 
 object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
