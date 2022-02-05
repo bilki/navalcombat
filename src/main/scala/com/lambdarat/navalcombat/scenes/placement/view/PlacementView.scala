@@ -59,10 +59,7 @@ object PlacementView:
   end getHighlightColor
 
   def createMessage(text: Text[ImageEffects])(msg: String): Text[ImageEffects] =
-    text
-      .withText(msg)
-      .withMaterial(text.material.withOverlay(Fill.Color(RGBA.Black)))
-      .alignRight
+    text.withText(msg).alignRight
 
   private val SHIPS_MARGIN         = 20
   private val GRID_TOP_MARGIN      = 70
@@ -111,12 +108,13 @@ object PlacementView:
       text: Text[ImageEffects],
       mousePosition: Point
   ): SceneUpdateFragment =
-    val putMessage = createMessage(text)
 
     val originSpace     = viewModel.sceneSettings.modelSpace
     val targetSpace     = viewModel.sceneSettings.gridBounds
     val board           = model.board
     val cellGraphicsFun = placementViewCellGraphics(model.board, viewModel.highlightedCells)
+
+    val putMessage = text.alignRight.withText
 
     val grid        = Grid.draw(originSpace, targetSpace, model.board, cellGraphicsFun)
     val lettersAxis = Axis.drawLetters(originSpace, targetSpace, putMessage)
@@ -128,7 +126,8 @@ object PlacementView:
     val title = text.moveTo(viewModel.sceneSettings.sceneBounds.center.x, PLACEMENT_MSG_MARGIN)
 
     val dragAndDropText =
-      putMessage("Click and place\nPress R to rotate").withPosition(Point(screenWidth - SHIPS_MARGIN, gridMargin))
+      putMessage("Click and place\nPress R to rotate")
+        .withPosition(Point(screenWidth - SHIPS_MARGIN, gridMargin))
 
     val sidebarShips = viewModel.sidebarShips.map { ship =>
       val sidebarShipGraphic = sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics)

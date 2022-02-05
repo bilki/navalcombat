@@ -38,12 +38,6 @@ object PlayerView:
     Rectangle(gridX, gridY, GRID_WIDTH, GRID_WIDTH)
   end computeGridBounds
 
-  def createMessage(text: Text[ImageEffects])(msg: String): Text[ImageEffects] =
-    text
-      .withText(msg)
-      .withMaterial(text.material.withOverlay(Fill.Color(RGBA.Black)))
-      .alignRight
-
   def draw(
       model: NavalCombatModel,
       viewModel: PlayerViewModel,
@@ -51,7 +45,7 @@ object PlayerView:
   ): SceneUpdateFragment =
     val placeMessage = text.moveTo(viewModel.sceneSettings.sceneBounds.center.x, PLAYER_MSG_MARGIN)
 
-    val putMessage = createMessage(text)
+    val putMessage = text.alignRight.withText
 
     val originSpace     = viewModel.sceneSettings.modelSpace
     val targetSpace     = viewModel.sceneSettings.gridBounds
