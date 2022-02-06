@@ -72,8 +72,9 @@ object BoardEngine:
       ship.size == partsSunk
 
     def shoot(x: XCoord, y: YCoord): Option[Miss.type | Sunk] =
-      board.get(x, y).map {
-        case Unknown | Miss => Miss
-        case Floating(ship) => Sunk(ship)
-        case s: Sunk        => s
+      board.get(x, y).flatMap {
+        case Unknown        => Some(Miss)
+        case Floating(ship) => Some(Sunk(ship))
+        case Miss           => Option.empty
+        case s: Sunk        => Option.empty
       }
