@@ -3,7 +3,7 @@ package com.lambdarat.navalcombat.engine
 import munit.ScalaCheckSuite
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import org.scalacheck.Prop._
+import org.scalacheck.Prop.*
 
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.generators.ModelGen
@@ -14,7 +14,7 @@ import com.lambdarat.navalcombat.generators.ModelGen.{
   given Arbitrary[ShipOrientation]
 }
 
-class BoardEngineSpec extends ScalaCheckSuite {
+class BoardEngineSpec extends ScalaCheckSuite:
   import BoardEngine.*
 
   property("valid coords must return a cell for the empty board") {
@@ -164,5 +164,3 @@ class BoardEngineSpec extends ScalaCheckSuite {
         assertEquals(clue(overlapped), Some(expected))
     }
   }
-
-}
