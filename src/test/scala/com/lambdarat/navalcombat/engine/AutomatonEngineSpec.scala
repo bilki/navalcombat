@@ -21,7 +21,7 @@ class AutomatonEngineSpec extends ScalaCheckSuite:
 
   property("any board generated from AI player should contain all ships") {
     forAll { (board: Board) =>
-      assertEquals(board.ships.keySet.size, Ship.values.size)
+      assertEquals(board.ships.keySet, Ship.values.toSet)
     }
   }
 
