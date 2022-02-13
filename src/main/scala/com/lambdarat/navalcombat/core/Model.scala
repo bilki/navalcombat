@@ -81,4 +81,4 @@ final case class ShipOrientation(coord: Coord, rotation: Rotation):
       coord :: (1 until ship.size.toInt).toList
         .map(shiftY => coord.copy(y = coord.y - shiftY))
 
-final case class NavalCombatModel(board: Board)
+final case class NavalCombatModel(player: Board, enemy: Board)

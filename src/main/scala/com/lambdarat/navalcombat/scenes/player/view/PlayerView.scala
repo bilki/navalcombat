@@ -45,7 +45,7 @@ object PlayerView:
 
     val originSpace     = viewModel.sceneSettings.modelSpace
     val targetSpace     = viewModel.sceneSettings.gridBounds
-    val board           = model.board
+    val board           = model.player
     val cellGraphicsFun = playerViewCellGraphics
 
     val grid        = Grid.draw(originSpace, targetSpace, board, cellGraphicsFun)

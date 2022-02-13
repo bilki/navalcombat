@@ -111,12 +111,12 @@ object PlacementView:
 
     val originSpace     = viewModel.sceneSettings.modelSpace
     val targetSpace     = viewModel.sceneSettings.gridBounds
-    val board           = model.board
-    val cellGraphicsFun = placementViewCellGraphics(model.board, viewModel.highlightedCells)
+    val board           = model.player
+    val cellGraphicsFun = placementViewCellGraphics(model.player, viewModel.highlightedCells)
 
     val putMessage = text.alignRight.withText
 
-    val grid        = Grid.draw(originSpace, targetSpace, model.board, cellGraphicsFun)
+    val grid        = Grid.draw(originSpace, targetSpace, model.player, cellGraphicsFun)
     val lettersAxis = Axis.drawLetters(originSpace, targetSpace, putMessage)
     val numbersAxis = Axis.drawNumbers(originSpace, targetSpace, putMessage)
 

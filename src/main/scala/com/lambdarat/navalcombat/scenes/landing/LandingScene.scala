@@ -69,7 +69,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] =
-    case PlayCombat => Outcome(model.copy(board = Board.empty))
+    case PlayCombat => Outcome(model.copy(player = Board.empty))
     case _          => Outcome(model)
 
   def updateViewModel(

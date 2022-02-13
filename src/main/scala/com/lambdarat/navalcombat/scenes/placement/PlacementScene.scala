@@ -57,11 +57,11 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] =
     case PlaceShip(ship, coord, rotation) =>
-      val updatedBoard = model.board.place(ship, rotation, coord.x, coord.y)
+      val updatedBoard = model.player.place(ship, rotation, coord.x, coord.y)
 
       updatedBoard match
         case Some(board) =>
-          val updatedBoardOutcome = Outcome(model.copy(board = board))
+          val updatedBoardOutcome = Outcome(model.copy(player = board))
           if (Ship.values.forall(board.ships.contains))
             updatedBoardOutcome.addGlobalEvents(SceneEvent.JumpTo(PlayerScene.name))
           else
@@ -106,13 +106,13 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
       case Nil                                        => List.empty[Highlighted]
       case overlaps if overlaps.size < shipSize.toInt => overlapping.map(Highlighted(_, Highlight.NotValid))
       case firstCoord :: rest =>
-        if model.board.canPlace(dragged.ship, dragged.rotation, firstCoord.x, firstCoord.y) then
+        if model.player.canPlace(dragged.ship, dragged.rotation, firstCoord.x, firstCoord.y) then
           overlapping.map(Highlighted(_, Highlight.Valid))
         else
           overlapping.map(coord =>
             Highlighted(
               coord,
-              if model.board.isEmpty(coord.x, coord.y) then Highlight.Valid else Highlight.NotValid
+              if model.player.isEmpty(coord.x, coord.y) then Highlight.Valid else Highlight.NotValid
             )
           )
   end highlightedCells
@@ -157,7 +157,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
                 .flatten
               maybePlaceShip = PlaceShip(dragged.ship, highlightedCell.position, dragged.rotation)
               position       = highlightedCell.position
-              placeShip <- Option.when(model.board.canPlace(dragged.ship, dragged.rotation, position.x, position.y))(
+              placeShip <- Option.when(model.player.canPlace(dragged.ship, dragged.rotation, position.x, position.y))(
                 maybePlaceShip
               )
             yield placeShip

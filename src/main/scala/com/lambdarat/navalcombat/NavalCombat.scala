@@ -12,6 +12,7 @@ import indigo.*
 import indigo.scenes.*
 
 import scala.scalajs.js.annotation.JSExportTopLevel
+import com.lambdarat.navalcombat.engine.AutomatonEngine
 
 @JSExportTopLevel("IndigoGame")
 object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
@@ -46,7 +47,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Outcome(startup)
 
   def initialModel(startupData: NavalCombatSetupData): Outcome[NavalCombatModel] = Outcome(
-    NavalCombatModel(Board.empty)
+    NavalCombatModel(Board.empty, Board.empty)
   )
 
   def initialViewModel(startupData: NavalCombatSetupData, model: NavalCombatModel): Outcome[NavalCombatViewModel] =
