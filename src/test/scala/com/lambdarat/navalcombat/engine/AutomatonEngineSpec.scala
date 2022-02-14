@@ -16,7 +16,7 @@ class AutomatonEngineSpec extends ScalaCheckSuite:
   import BoardEngine.*
 
   given genDice: Gen[Dice] =
-    Gen.chooseNum(Long.MinValue, Long.MaxValue).map(Dice.arbitrary(1, Board.BOARD_SIZE, _))
+    Gen.chooseNum(Long.MinValue, Long.MaxValue).map(Dice.diceSidesN(Board.BOARD_SIZE, _))
   given arbBoard: Arbitrary[Board] = Arbitrary(genDice.map(AutomatonEngine.placeShips))
 
   property("any board generated from AI player should contain all ships") {

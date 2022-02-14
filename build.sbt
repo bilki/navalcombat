@@ -55,8 +55,8 @@ lazy val root = project
     windowStartWidth    := 1280,
     windowStartHeight   := 720,
     libraryDependencies ++= Seq(
-      "io.indigoengine" %%% "indigo-json-circe" % "0.11.0",
-      "io.indigoengine" %%% "indigo"            % "0.11.0",
-      "io.indigoengine" %%% "indigo-extras"     % "0.11.0"
+      "io.indigoengine" %%% "indigo-json-circe" % "0.12.0",
+      "io.indigoengine" %%% "indigo"            % "0.12.0",
+      "io.indigoengine" %%% "indigo-extras"     % "0.12.0"
     )
   )
