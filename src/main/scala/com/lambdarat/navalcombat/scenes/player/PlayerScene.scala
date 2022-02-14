@@ -2,13 +2,16 @@ package com.lambdarat.navalcombat.scenes.player
 
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.engine.AutomatonEngine
+import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
+import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.scenes.*
 import indigo.scenes.SceneEvent.SceneChange
+import indigo.shared.events.MouseEvent.Click
 
 object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
@@ -41,7 +44,17 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
       model: NavalCombatModel,
       viewModel: PlayerViewModel
   ): GlobalEvent => Outcome[PlayerViewModel] =
-    case _ => Outcome(viewModel)
+    case click: Click =>
+      val originSpace = viewModel.sceneSettings.gridBounds
+      val targetSpace = viewModel.sceneSettings.modelSpace
+
+      if originSpace.isPointWithin(click.position) then
+        val coordsClicked = click.position.transform(originSpace, targetSpace).toCoord
+        Outcome(viewModel)
+          .addGlobalEvents(ClickedEnemyCell(coordsClicked))
+      else Outcome(viewModel)
+    case _ =>
+      Outcome(viewModel)
 
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
@@ -52,7 +65,11 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
       val enemyBoard   = AutomatonEngine.placeShips(generateDice)
 
       Outcome(model.copy(enemy = enemyBoard))
-    case _ => Outcome(model)
+    case ClickedEnemyCell(coord) =>
+      val maybeUpdatedBoard = model.enemy.shoot(coord.x, coord.y)
+      maybeUpdatedBoard.fold(Outcome(model))(updatedEnemy => Outcome(model.copy(enemy = updatedEnemy)))
+    case _ =>
+      Outcome(model)
 
   val playerTurnMsg = Text(
     "Player turn",
@@ -67,3 +84,5 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
   ): Outcome[SceneUpdateFragment] = Outcome(
     PlayerView.draw(model, viewModel, playerTurnMsg)
   )
+
+case class ClickedEnemyCell(coord: Coord) extends GlobalEvent

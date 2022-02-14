@@ -39,7 +39,7 @@ object AutomatonEngine:
     val x = XCoord(dice.roll(Board.BOARD_SIZE) - 1)
     val y = YCoord(dice.roll(Board.BOARD_SIZE) - 1)
 
-    enemy.shoot(x, y) match
+    enemy.tryShot(x, y) match
       case Some(result) => enemy.update(x, y, result)
       case None         => retryUntilMissOrHit(dice, enemy)
 

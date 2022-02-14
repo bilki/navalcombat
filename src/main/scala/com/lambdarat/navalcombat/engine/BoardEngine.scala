@@ -71,10 +71,16 @@ object BoardEngine:
 
       ship.size == partsSunk
 
-    def shoot(x: XCoord, y: YCoord): Option[Miss.type | Sunk] =
+    private[engine] def tryShot(x: XCoord, y: YCoord): Option[Miss.type | Sunk] =
       board.get(x, y).flatMap {
         case Unknown        => Some(Miss)
         case Floating(ship) => Some(Sunk(ship))
         case Miss           => Option.empty
         case s: Sunk        => Option.empty
       }
+
+    def shoot(x: XCoord, y: YCoord): Option[Board] =
+      for
+        shotResult   <- tryShot(x, y)
+        updatedBoard <- update(x, y, shotResult)
+      yield updatedBoard

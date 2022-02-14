@@ -17,10 +17,10 @@ extension (point: Point)
   // Transforms a point from coordinate system origin into target
   def transform(origin: Rectangle, target: Rectangle): Point =
     // (0,0) is (origin.x, origin.y)
-    val newX = (point.x - origin.x) * target.width / origin.width
-    val newY = (point.y - origin.y) * target.height / origin.height
+    val newX = (point.x - origin.x) * target.width.toFloat / origin.width.toFloat
+    val newY = (point.y - origin.y) * target.height.toFloat / origin.height.toFloat
 
-    Point(target.x + newX, target.y + newY)
+    Point(target.x + Math.floor(newX).toInt, target.y + Math.floor(newY).toInt)
 
   def toCoord: Coord = Coord(XCoord(point.x), YCoord(point.y))
 end extension
