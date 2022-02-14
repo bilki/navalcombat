@@ -2,6 +2,7 @@ package com.lambdarat.navalcombat.scenes.landing
 
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.assets.Assets
+import com.lambdarat.navalcombat.scenes.landing.viewmodel.LandingViewModel
 import com.lambdarat.navalcombat.scenes.placement.PlacementScene
 import com.lambdarat.navalcombat.utils.*
 import com.lambdarat.navalcombat.utils.given

@@ -64,7 +64,7 @@ object PlayerView:
             Some(rotatedShip)
           else None
         }
-      case Cell.Sunk(partOf) => Some(hitCell.withPosition(position))
+      case Cell.Sunk(partOf) => Some(hitCell.scaleBy(scale).withPosition(position))
   end miniViewCellGraphics
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
