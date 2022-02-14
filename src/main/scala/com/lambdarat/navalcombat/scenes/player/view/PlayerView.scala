@@ -28,7 +28,7 @@ object PlayerView:
   private val GRID_OFFSET       = 50
   private val MINI_GRID_WIDTH   = 250
   private val MINI_GRID_SCALE   = 0.390625
-  private val MINI_GRID_SPACER  = 100
+  private val MINI_GRID_SPACER  = 75
   private val PLAYER_MSG_MARGIN = 15
   private val CELL_WIDTH        = 64
 

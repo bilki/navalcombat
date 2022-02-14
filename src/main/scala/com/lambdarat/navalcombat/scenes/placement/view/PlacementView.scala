@@ -66,7 +66,7 @@ object PlacementView:
   private val SHIPS_SPACING        = 50
   private val GRID_WIDTH           = 640
   private val CELL_WIDTH           = 64
-  private val DRAG_AND_DROP_HEIGHT = 60
+  private val DRAG_AND_DROP_HEIGHT = 80
   private val PLACEMENT_MSG_MARGIN = 15
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =
@@ -126,7 +126,7 @@ object PlacementView:
     val title = text.moveTo(viewModel.sceneSettings.sceneBounds.center.x, PLACEMENT_MSG_MARGIN)
 
     val dragAndDropText =
-      putMessage("Click and place\nPress R to rotate")
+      putMessage("Click and place\nR or right click\nto rotate")
         .withPosition(Point(screenWidth - SHIPS_MARGIN, gridMargin))
 
     val sidebarShips = viewModel.sidebarShips.map { ship =>

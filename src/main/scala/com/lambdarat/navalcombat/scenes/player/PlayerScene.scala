@@ -87,7 +87,7 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
       Outcome(model)
 
   val playerTurnMsg = Text(
-    "Player turn",
+    "Combat",
     Assets.ponderosaFontKey,
     Material.ImageEffects(Assets.ponderosaImgName)
   ).alignCenter

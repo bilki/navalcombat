@@ -33,7 +33,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   def subSystems: Set[SubSystem] = Set.empty
 
   val placementMessage = Text(
-    "Placement Screen",
+    "Place ships",
     Assets.ponderosaFontKey,
     Material.ImageEffects(Assets.ponderosaImgName)
   ).alignCenter
@@ -143,7 +143,10 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
         case (false, Some(dragged)) =>
           val highlighted = highlightedCells(dragged, gridBounds, modelSpace, context.mouse.position, model)
           val newRotation =
-            if context.keyboard.keysAreUp(Key.KEY_R) then dragged.rotation.reverse else dragged.rotation
+            if context.keyboard.keysAreUp(Key.KEY_R) || context.mouse.pressed(MouseButton.RightMouseButton) then
+              dragged.rotation.reverse
+            else
+              dragged.rotation
           val nextPlacingShip = Some(PlacingShip(dragged.ship, newRotation))
 
           Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
