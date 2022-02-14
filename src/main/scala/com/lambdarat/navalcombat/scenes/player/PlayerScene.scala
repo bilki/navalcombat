@@ -1,12 +1,14 @@
 package com.lambdarat.navalcombat.scenes.player
 
 import com.lambdarat.navalcombat.assets.Assets
+import com.lambdarat.navalcombat.engine.AutomatonEngine
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.player.viewmodel.PlayerViewModel
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
 
 import indigo.*
 import indigo.scenes.*
+import indigo.scenes.SceneEvent.SceneChange
 
 object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
@@ -45,6 +47,11 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] =
+    case SceneChange(_, _, time) =>
+      val generateDice = Dice.fromSeed(time.toMillis.toLong)
+      val enemyBoard   = AutomatonEngine.placeShips(generateDice)
+
+      Outcome(model.copy(enemy = enemyBoard))
     case _ => Outcome(model)
 
   val playerTurnMsg = Text(

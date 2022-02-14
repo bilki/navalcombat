@@ -20,7 +20,7 @@ extension (point: Point)
     val newX = (point.x - origin.x) * target.width / origin.width
     val newY = (point.y - origin.y) * target.height / origin.height
 
-    Point(target.x + Math.floor(newX).toInt, target.y + Math.floor(newY).toInt)
+    Point(target.x + newX, target.y + newY)
 
   def toCoord: Coord = Coord(XCoord(point.x), YCoord(point.y))
 end extension
