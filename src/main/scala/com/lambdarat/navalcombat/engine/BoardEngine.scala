@@ -83,4 +83,11 @@ object BoardEngine:
       for
         shotResult   <- tryShot(x, y)
         updatedBoard <- update(x, y, shotResult)
-      yield updatedBoard
+      yield shotResult match
+        case sunk: Sunk if updatedBoard.isCompletelySunk(sunk.partOf) =>
+          updatedBoard.copy(ships = updatedBoard.ships - sunk.partOf)
+        case _: Sunk | Miss =>
+          updatedBoard
+
+    def isEndGame: Boolean =
+      board.ships.isEmpty

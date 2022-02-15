@@ -13,6 +13,7 @@ import com.lambdarat.navalcombat.generators.ModelGen.{
   given Arbitrary[Rotation],
   given Arbitrary[ShipOrientation]
 }
+import indigo.Dice
 
 class BoardEngineSpec extends ScalaCheckSuite:
   import BoardEngine.*
@@ -162,5 +163,83 @@ class BoardEngineSpec extends ScalaCheckSuite:
 
         assert(clue(failedUpdate).isEmpty)
         assertEquals(clue(overlapped), Some(expected))
+    }
+  }
+
+  property("shooting to all sections of a ship sinks that ship and it is removed from board") {
+    val randomBoard = Gen.long.map(seed => AutomatonEngine.placeShips(Dice.fromSeed(seed)))
+    val randomShip  = Gen.oneOf(Ship.values)
+
+    forAll(randomBoard, randomShip) { (board: Board, ship: Ship) =>
+      val maybeUpdatedBoard =
+        for
+          sections <- board.ships.get(ship).map(_.sections(ship))
+          updatedBoard <- sections.foldLeft(Option(board)) { case (prevBoard, nextSection) =>
+            prevBoard.flatMap(_.shoot(nextSection.x, nextSection.y))
+          }
+        yield updatedBoard
+
+      assertEquals(maybeUpdatedBoard.map(_.ships), Some(board.ships - ship))
+      assertEquals(maybeUpdatedBoard.map(_.isCompletelySunk(ship)), Some(true))
+    }
+  }
+
+  property("shooting to all sections but one of a ship does not sink it") {
+    val randomBoard = Gen.long.map(seed => AutomatonEngine.placeShips(Dice.fromSeed(seed)))
+    val randomShip  = Gen.oneOf(Ship.values)
+
+    forAll(randomBoard, randomShip) { (board: Board, ship: Ship) =>
+      val maybeUpdatedBoard =
+        for
+          sections <- board.ships.get(ship).map(_.sections(ship).drop(1))
+          updatedBoard <- sections.foldLeft(Option(board)) { case (prevBoard, nextSection) =>
+            prevBoard.flatMap(_.shoot(nextSection.x, nextSection.y))
+          }
+        yield updatedBoard
+
+      assertEquals(maybeUpdatedBoard.map(_.ships), Some(board.ships))
+      assertEquals(maybeUpdatedBoard.map(_.isCompletelySunk(ship)), Some(false))
+    }
+  }
+
+  property("shooting and sinking all ships ends the game") {
+    val randomBoard = Gen.long.map(seed => AutomatonEngine.placeShips(Dice.fromSeed(seed)))
+
+    forAll(randomBoard) { board =>
+      val maybeUpdatedBoard =
+        board.ships.foldLeft(Option(board)) { case (previousBoard, (ship, location)) =>
+          val sections = location.sections(ship)
+
+          sections.foldLeft(previousBoard) { case (sectionsBoard, nextSection) =>
+            sectionsBoard.flatMap(_.shoot(nextSection.x, nextSection.y))
+          }
+        }
+
+      assertEquals(maybeUpdatedBoard.map(_.ships), Some(Map.empty))
+      assertEquals(maybeUpdatedBoard.map(_.isEndGame), Some(true))
+    }
+  }
+
+  property("shooting and sinking all ships but one does not end the game") {
+    val randomBoard = Gen.long.map(seed => AutomatonEngine.placeShips(Dice.fromSeed(seed)))
+    val randomShip  = Gen.oneOf(Ship.values)
+
+    forAll(randomBoard, randomShip) { (board: Board, lucky: Ship) =>
+      val allButOneShip = board.ships - lucky
+
+      val maybeUpdatedBoard =
+        allButOneShip.foldLeft(Option(board)) { case (previousBoard, (ship, location)) =>
+          val sections = location.sections(ship)
+
+          sections.foldLeft(previousBoard) { case (sectionsBoard, nextSection) =>
+            sectionsBoard.flatMap(_.shoot(nextSection.x, nextSection.y))
+          }
+        }
+
+      assertEquals(
+        maybeUpdatedBoard.map(_.ships),
+        board.ships.get(lucky).map(luckyLocation => Map(lucky -> luckyLocation))
+      )
+      assertEquals(maybeUpdatedBoard.map(_.isEndGame), Some(false))
     }
   }
