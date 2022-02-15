@@ -6,6 +6,7 @@ import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.player.viewmodel.{PlayerViewModel, Turn}
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.SceneSettings
+import com.lambdarat.navalcombat.scenes.result.ResultScene
 import com.lambdarat.navalcombat.utils.*
 import com.lambdarat.navalcombat.utils.given
 
@@ -70,15 +71,21 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
 
       Outcome(model.copy(enemy = enemyBoard))
     case ClickedEnemyCell(coord) =>
-      val maybeUpdatedBoard = model.enemy.shoot(coord.x, coord.y)
+      val enemyBoard        = model.enemy
+      val maybeUpdatedBoard = enemyBoard.shoot(coord.x, coord.y)
+
       maybeUpdatedBoard match
-        case None               =>
+        case None =>
           Outcome(model)
-        case Some(updatedEnemy) => 
-          Outcome(model.copy(enemy = updatedEnemy))
-            .addGlobalEvents(TurnTo(Turn.Enemy))
+        case Some(updatedBoard) =>
+          val nextEvent =
+            if updatedBoard.isEndGame then SceneEvent.JumpTo(ResultScene.name)
+            else TurnTo(Turn.Enemy)
+
+          Outcome(model.copy(enemy = updatedBoard))
+            .addGlobalEvents(nextEvent)
     case TurnTo(Turn.Enemy) =>
-      val generateDice = Dice.fromSeed(context.running.toMillis.toLong)
+      val generateDice    = Dice.fromSeed(context.running.toMillis.toLong)
       val nextPlayerBoard = AutomatonEngine.nextShot(generateDice, model.player)
 
       Outcome(model.copy(player = nextPlayerBoard))
@@ -101,4 +108,4 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
   )
 
 case class ClickedEnemyCell(coord: Coord) extends GlobalEvent
-case class TurnTo(turn: Turn) extends GlobalEvent
+case class TurnTo(turn: Turn)             extends GlobalEvent

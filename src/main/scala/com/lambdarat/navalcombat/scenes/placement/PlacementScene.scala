@@ -145,8 +145,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
           val newRotation =
             if context.keyboard.keysAreUp(Key.KEY_R) || context.mouse.pressed(MouseButton.RightMouseButton) then
               dragged.rotation.reverse
-            else
-              dragged.rotation
+            else dragged.rotation
           val nextPlacingShip = Some(PlacingShip(dragged.ship, newRotation))
 
           Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))

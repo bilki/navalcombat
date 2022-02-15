@@ -5,6 +5,7 @@ import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.scenes.landing.*
 import com.lambdarat.navalcombat.scenes.placement.*
 import com.lambdarat.navalcombat.scenes.player.*
+import com.lambdarat.navalcombat.scenes.result.*
 import com.lambdarat.navalcombat.utils.given
 import com.lambdarat.navalcombat.utils.ExtraColors.*
 
@@ -28,7 +29,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
     Some(LandingScene.name)
 
   def scenes(bootData: GameConfig): NonEmptyList[Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]] =
-    NonEmptyList(LandingScene, PlacementScene, PlayerScene)
+    NonEmptyList(LandingScene, PlacementScene, PlayerScene, ResultScene)
 
   def setup(
       bootData: GameConfig,
