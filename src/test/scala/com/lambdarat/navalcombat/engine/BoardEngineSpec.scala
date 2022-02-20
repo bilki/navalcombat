@@ -11,7 +11,7 @@ import com.lambdarat.navalcombat.generators.ModelGen.validCoord
 import com.lambdarat.navalcombat.generators.ModelGen.{
   given Arbitrary[Ship],
   given Arbitrary[Rotation],
-  given Arbitrary[ShipOrientation]
+  given Arbitrary[ShipLocation]
 }
 import indigo.Dice
 
@@ -73,7 +73,7 @@ class BoardEngineSpec extends ScalaCheckSuite:
   }
 
   property("sections for ship orientation contain the correct number of coords") {
-    forAll { (shipOrientation: ShipOrientation, ship: Ship) =>
+    forAll { (shipOrientation: ShipLocation, ship: Ship) =>
       val expectedNumberOfCoords = clue(ship).size.toInt
 
       val sections = shipOrientation.sections(ship)
@@ -89,7 +89,7 @@ class BoardEngineSpec extends ScalaCheckSuite:
       val board = Board.empty
 
       val updatedBoard    = board.place(ship, rotation, coord.x, coord.y)
-      val shipOrientation = ShipOrientation(coord, rotation)
+      val shipOrientation = ShipLocation(coord, rotation)
 
       val coords = shipOrientation.sections(ship)
       val cells  = coords.flatMap(coord => updatedBoard.map(_.get(coord.x, coord.y))).flatten
@@ -105,7 +105,7 @@ class BoardEngineSpec extends ScalaCheckSuite:
 
       val expectedCellsNumber = clue(ship).size.toInt
       val expectedCells       = Section.values.take(ship.size.toInt).map(Cell.Floating(ship, _)).toList
-      val expectedPlaced      = Map(ship -> ShipOrientation(coord, rotation))
+      val expectedPlaced      = Map(ship -> ShipLocation(coord, rotation))
 
       assertEquals(clue(cells).size, expectedCellsNumber)
       assertEquals(clue(cells), expectedCells)

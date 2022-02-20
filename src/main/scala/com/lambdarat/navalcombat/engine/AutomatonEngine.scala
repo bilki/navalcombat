@@ -11,14 +11,14 @@ import scala.annotation.tailrec
 
 object AutomatonEngine:
 
-  private def generateShipOrientation(dice: Dice): ShipOrientation =
+  private def generateShipOrientation(dice: Dice): ShipLocation =
     val x             = XCoord(dice.roll(Board.BOARD_SIZE) - 1)
     val y             = YCoord(dice.roll(Board.BOARD_SIZE) - 1)
     val coord         = Coord(x, y)
     val rotationValue = dice.roll(Rotation.values.size) - 1
     val rotation      = Rotation.fromOrdinal(rotationValue)
 
-    ShipOrientation(coord, rotation)
+    ShipLocation(coord, rotation)
   end generateShipOrientation
 
   @tailrec

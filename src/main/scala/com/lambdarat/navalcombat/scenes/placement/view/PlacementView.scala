@@ -25,7 +25,7 @@ object PlacementView:
       case Cell.Unknown => Some(Graphics.empty(highlightColor).withPosition(position))
       case Cell.Miss    => Some(missCell.withPosition(position))
       case Cell.Floating(partOf, _) =>
-        board.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
+        board.ships.get(partOf).flatMap { case ShipLocation(shipCoords, shipRotation) =>
           if coord == shipCoords then
             val shipGraphic = Graphics.graphicFor(partOf, highlightColor)
 

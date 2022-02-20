@@ -61,10 +61,10 @@ object ModelGen:
 
     Arbitrary(overlappingPlaceGen)
 
-  given Arbitrary[ShipOrientation] =
+  given Arbitrary[ShipLocation] =
     val shipOrientationGen = for
       coord    <- arbitrary[Coord]
       rotation <- arbitrary[Rotation]
-    yield ShipOrientation(coord, rotation)
+    yield ShipLocation(coord, rotation)
 
     Arbitrary(shipOrientationGen)

@@ -59,7 +59,7 @@ object BoardEngine:
         }
 
         maybeUpdatedBoard.map(updated =>
-          updated.copy(ships = updated.ships + (ship -> ShipOrientation(Coord(x, y), rotation)))
+          updated.copy(ships = updated.ships + (ship -> ShipLocation(Coord(x, y), rotation)))
         )
       else None
 

@@ -41,7 +41,7 @@ object PlayerView:
       case Cell.Unknown => Some(emptyCell.scaleBy(scale).withPosition(position))
       case Cell.Miss    => Some(missCell.scaleBy(scale).withPosition(position))
       case Cell.Floating(partOf, section) =>
-        board.ships.get(partOf).flatMap { case ShipOrientation(_, shipRotation) =>
+        board.ships.get(partOf).flatMap { case ShipLocation(_, shipRotation) =>
           val shipGraphic = Graphics.graphicFor(partOf, section)
 
           val rotatedShip = shipRotation match
