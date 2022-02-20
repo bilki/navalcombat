@@ -2,18 +2,25 @@ package com.lambdarat.navalcombat.scenes.result
 
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.core.Ship.*
+import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.result.view.ResultView
+import com.lambdarat.navalcombat.scenes.result.viewmodel.ResultViewModel
+import com.lambdarat.navalcombat.scenes.result.viewmodel.CombatResult.{Win, Lose}
 
 import indigo.*
 import indigo.scenes.*
+import com.lambdarat.navalcombat.scenes.result.viewmodel.SideResult
+import indigo.scenes.SceneEvent.SceneChange
 
 object ResultScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCombatViewModel]:
   def modelLens: Lens[NavalCombatModel, NavalCombatModel] = Lens.keepLatest
 
-  def viewModelLens: Lens[NavalCombatViewModel, NavalCombatViewModel] = Lens.keepLatest
+  def viewModelLens: Lens[NavalCombatViewModel, ResultViewModel] =
+    Lens(_.result, (ncvm, rvm) => ncvm.copy(result = rvm))
 
   type SceneModel     = NavalCombatModel
-  type SceneViewModel = NavalCombatViewModel
+  type SceneViewModel = ResultViewModel
 
   def name: SceneName = SceneName("result")
 
@@ -21,11 +28,45 @@ object ResultScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
 
   def subSystems: Set[SubSystem] = Set.empty
 
+  private def shipResultFor(board: Board, ship: Ship): List[Cell] =
+    val maybeCells = for
+      location <- board.ships.get(ship)
+      coords = location.sections(ship)
+    yield coords.foldLeft(List.empty[Cell]) { case (accCells, nextCoord) =>
+      board.get(nextCoord.x, nextCoord.y).fold(accCells)(_ :: accCells)
+    }
+
+    maybeCells.getOrElse(List.empty)
+
+  private def sideResultFor(board: Board): SideResult =
+    SideResult(
+      destroyer = shipResultFor(board, Destroyer),
+      submarine = shipResultFor(board, Submarine),
+      cruiser = shipResultFor(board, Cruiser),
+      battleship = shipResultFor(board, Battleship),
+      carrier = shipResultFor(board, Carrier)
+    )
+
+  def resultViewModelFromBoards(model: NavalCombatModel): ResultViewModel =
+    val combatResult = if (model.player.isEndGame) then Win else Lose
+    val playerResult = sideResultFor(model.player)
+    val enemyResult  = sideResultFor(model.enemy)
+
+    ResultViewModel(
+      combatResult,
+      playerResult,
+      enemyResult
+    )
+
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
-      viewModel: NavalCombatViewModel
-  ): GlobalEvent => Outcome[NavalCombatViewModel] = Function.const(Outcome(viewModel))
+      viewModel: ResultViewModel
+  ): GlobalEvent => Outcome[ResultViewModel] =
+    case _: SceneChange =>
+      Outcome(resultViewModelFromBoards(model))
+    case _ =>
+      Outcome(viewModel)
 
   def updateModel(
       context: FrameContext[NavalCombatSetupData],
@@ -35,7 +76,7 @@ object ResultScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
   def present(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
-      viewModel: NavalCombatViewModel
+      viewModel: ResultViewModel
   ): Outcome[SceneUpdateFragment] = Outcome(
-    ResultView.draw(context)
+    ResultView.draw(context, viewModel)
   )
