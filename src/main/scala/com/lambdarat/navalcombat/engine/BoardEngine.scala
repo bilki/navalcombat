@@ -54,8 +54,8 @@ object BoardEngine:
           case Horizontal => (x + _, _ => y): (Int => XCoord, Int => YCoord)
 
       if canPlace(ship, rotation, x, y) then
-        val maybeUpdatedBoard = (0 until ship.size.toInt).foldLeft(Option(board)) { (oldBoard, shipCoordInc) =>
-          oldBoard.flatMap(_.update(xUpdate(shipCoordInc), yUpdate(shipCoordInc), Floating(ship)))
+        val maybeUpdatedBoard = Section.values.take(ship.size.toInt).foldLeft(Option(board)) { (oldBoard, section) =>
+          oldBoard.flatMap(_.update(xUpdate(section.ordinal), yUpdate(section.ordinal), Floating(ship, section)))
         }
 
         maybeUpdatedBoard.map(updated =>
@@ -65,18 +65,18 @@ object BoardEngine:
 
     def isCompletelySunk(ship: Ship): Boolean =
       val partsSunk = board.cells.flatten.count {
-        case Sunk(partOf) => partOf == ship
-        case _            => false
+        case Sunk(partOf, _) => partOf == ship
+        case _               => false
       }
 
       ship.size == partsSunk
 
     private[engine] def tryShot(x: XCoord, y: YCoord): Option[Miss.type | Sunk] =
       board.get(x, y).flatMap {
-        case Unknown        => Some(Miss)
-        case Floating(ship) => Some(Sunk(ship))
-        case Miss           => Option.empty
-        case s: Sunk        => Option.empty
+        case Unknown                 => Some(Miss)
+        case Floating(ship, section) => Some(Sunk(ship, section))
+        case Miss                    => Option.empty
+        case s: Sunk                 => Option.empty
       }
 
     def shoot(x: XCoord, y: YCoord): Option[Board] =

@@ -104,11 +104,11 @@ class BoardEngineSpec extends ScalaCheckSuite:
       val expectedRestOfCells = Cell.Unknown
 
       val expectedCellsNumber = clue(ship).size.toInt
-      val expectedCell        = Cell.Floating(ship)
+      val expectedCells       = Section.values.take(ship.size.toInt).map(Cell.Floating(ship, _)).toList
       val expectedPlaced      = Map(ship -> ShipOrientation(coord, rotation))
 
       assertEquals(clue(cells).size, expectedCellsNumber)
-      assert(clue(cells).forall(_ == expectedCell))
+      assertEquals(clue(cells), expectedCells)
       assert(restOfBoard.flatten.forall(_ == expectedRestOfCells))
       assertEquals(clue(updatedBoard.map(_.ships)), Some(expectedPlaced))
     }
@@ -154,12 +154,16 @@ class BoardEngineSpec extends ScalaCheckSuite:
       yield (placed, overlapping, ship)
 
     forAll(overlappingGen) {
-      case (maybeBoard: Option[Board], (ship: Ship, coord: Coord, rotation: Rotation), previous: Ship) =>
+      case (
+            maybeBoard: Option[Board],
+            (ship: Ship, coord: Coord, section: Section, rotation: Rotation),
+            previous: Ship
+          ) =>
         val failedUpdate = maybeBoard.flatMap(_.place(ship, rotation, coord.x, coord.y))
 
-        val expected = Cell.Floating(previous)
-
         val overlapped = maybeBoard.flatMap(_.get(coord.x, coord.y))
+
+        val expected = Cell.Floating(previous, section)
 
         assert(clue(failedUpdate).isEmpty)
         assertEquals(clue(overlapped), Some(expected))

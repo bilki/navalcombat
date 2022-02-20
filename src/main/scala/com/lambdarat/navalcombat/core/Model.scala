@@ -33,6 +33,9 @@ object YCoord:
 
 final case class Coord(x: XCoord, y: YCoord) derives CanEqual
 
+enum Section derives CanEqual:
+  case First, Second, Third, Fourth, Fifth
+
 opaque type ShipSize = Int
 given CanEqual[ShipSize, Int] = CanEqual.derived
 
@@ -53,8 +56,8 @@ enum Ship(val size: ShipSize) derives CanEqual:
 enum Cell derives CanEqual:
   case Unknown
   case Miss
-  case Sunk(partOf: Ship)
-  case Floating(partOf: Ship)
+  case Sunk(partOf: Ship, section: Section)
+  case Floating(partOf: Ship, section: Section)
 
 enum Rotation derives CanEqual:
   case Horizontal, Vertical

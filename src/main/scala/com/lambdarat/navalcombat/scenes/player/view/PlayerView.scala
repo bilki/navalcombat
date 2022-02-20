@@ -15,10 +15,10 @@ import indigo.Material.ImageEffects
 object PlayerView:
   def enemyViewCellGraphics(cell: Cell, coord: Coord, position: Point): Option[Graphic[ImageEffects]] =
     val graphic = cell match
-      case Cell.Unknown          => emptyCell.withPosition(position)
-      case Cell.Miss             => missCell.withPosition(position)
-      case Cell.Floating(partOf) => emptyCell.withPosition(position)
-      case Cell.Sunk(partOf)     => hitCell.withPosition(position)
+      case Cell.Unknown     => emptyCell.withPosition(position)
+      case Cell.Miss        => missCell.withPosition(position)
+      case _: Cell.Floating => emptyCell.withPosition(position)
+      case _: Cell.Sunk     => hitCell.withPosition(position)
 
     Some(graphic)
   end enemyViewCellGraphics
@@ -40,31 +40,26 @@ object PlayerView:
     cell match
       case Cell.Unknown => Some(emptyCell.scaleBy(scale).withPosition(position))
       case Cell.Miss    => Some(missCell.scaleBy(scale).withPosition(position))
-      case Cell.Floating(partOf) =>
-        board.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
-          if coord == shipCoords then
-            val shipGraphic = Graphics.graphicFor(partOf)
+      case Cell.Floating(partOf, section) =>
+        board.ships.get(partOf).flatMap { case ShipOrientation(_, shipRotation) =>
+          val shipGraphic = Graphics.graphicFor(partOf, section)
 
-            val rotatedShip = shipRotation match
-              case Rotation.Horizontal =>
-                shipGraphic
-                  .scaleBy(scale)
-                  .withPosition(position)
-                  .withRotation(shipRotation.angle)
-              case Rotation.Vertical =>
-                shipGraphic
-                  .scaleBy(scale)
-                  .withPosition(position)
-                  .moveBy(
-                    (cellWidth * scale.x).toInt,
-                    -(cellWidth * scale.y).toInt * (partOf.size.toInt - 1)
-                  )
-                  .withRotation(shipRotation.angle)
+          val rotatedShip = shipRotation match
+            case Rotation.Horizontal =>
+              shipGraphic
+                .scaleBy(scale)
+                .withPosition(position)
+                .withRotation(shipRotation.angle)
+            case Rotation.Vertical =>
+              shipGraphic
+                .scaleBy(scale)
+                .withPosition(position)
+                .withRef(shipGraphic.bounds.topRight)
+                .withRotation(shipRotation.angle + Radians.PI)
 
-            Some(rotatedShip)
-          else None
+          Some(rotatedShip)
         }
-      case Cell.Sunk(partOf) => Some(hitCell.scaleBy(scale).withPosition(position))
+      case s: Cell.Sunk => Some(hitCell.scaleBy(scale).withPosition(position))
   end miniViewCellGraphics
 
   def computeGridBounds(setupData: NavalCombatSetupData): Rectangle =

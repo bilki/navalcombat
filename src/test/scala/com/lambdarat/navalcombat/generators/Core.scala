@@ -51,13 +51,13 @@ object ModelGen:
 
     Arbitrary(invalidPlaceGen)
 
-  def overlapping(board: Board): Arbitrary[(Ship, Coord, Rotation)] =
+  def overlapping(board: Board): Arbitrary[(Ship, Coord, Section, Rotation)] =
     val overlappingPlaceGen = for
       ship                        <- arbitrary[Ship].filterNot(board.ships.keySet.contains)
       rotation                    <- arbitrary[Rotation]
       (overShip, overOrientation) <- Gen.oneOf(board.ships)
-      overSection                 <- Gen.oneOf(overOrientation.sections(overShip))
-    yield (ship, overSection, rotation)
+      overSection                 <- Gen.oneOf(Section.values.take(overShip.size.toInt))
+    yield (ship, overOrientation.sections(overShip).apply(overSection.ordinal), overSection, rotation)
 
     Arbitrary(overlappingPlaceGen)
 

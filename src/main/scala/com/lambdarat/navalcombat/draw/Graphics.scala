@@ -1,7 +1,7 @@
 package com.lambdarat.navalcombat.draw
 
 import com.lambdarat.navalcombat.assets.Assets.*
-import com.lambdarat.navalcombat.core.{Cell, Ship}
+import com.lambdarat.navalcombat.core.{Cell, Section, Ship}
 import com.lambdarat.navalcombat.core.Ship.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.Highlight
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.Highlight.*
@@ -18,6 +18,13 @@ object Graphics:
       case Submarine  => submarine
       case Battleship => battleship
       case Carrier    => carrier
+
+  private val SECTION_WIDTH_HEIGHT = 64
+
+  def graphicFor(ship: Ship, section: Section): Graphic[ImageEffects] =
+    val shipGraphic = graphicFor(ship)
+    val cropFromX   = SECTION_WIDTH_HEIGHT * section.ordinal
+    shipGraphic.withCrop(shipGraphic.crop.x + cropFromX, shipGraphic.crop.y, SECTION_WIDTH_HEIGHT, SECTION_WIDTH_HEIGHT)
 
   def graphicFor(ship: Ship, highlight: Highlight): Graphic[ImageEffects] =
     (ship, highlight) match

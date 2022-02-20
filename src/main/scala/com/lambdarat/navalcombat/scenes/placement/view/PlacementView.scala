@@ -24,7 +24,7 @@ object PlacementView:
     cell match
       case Cell.Unknown => Some(Graphics.empty(highlightColor).withPosition(position))
       case Cell.Miss    => Some(missCell.withPosition(position))
-      case Cell.Floating(partOf) =>
+      case Cell.Floating(partOf, _) =>
         board.ships.get(partOf).flatMap { case ShipOrientation(shipCoords, shipRotation) =>
           if coord == shipCoords then
             val shipGraphic = Graphics.graphicFor(partOf, highlightColor)
@@ -41,14 +41,14 @@ object PlacementView:
             Some(rotatedShip)
           else None
         }
-      case Cell.Sunk(partOf) => Some(Graphics.empty(highlightColor).withPosition(position))
+      case Cell.Sunk(partOf, _) => Some(Graphics.empty(highlightColor).withPosition(position))
   end placementViewCellGraphics
 
   def getHighlightColor(board: Board, highlighted: List[Highlighted], cell: Cell, coord: Coord): Highlight =
     val maybeCurrentCoordHighlighted = highlighted.find(_.position == coord).map(_.highlight)
     val maybeShipSectionHighlighted =
       cell match
-        case Cell.Floating(partOf) =>
+        case Cell.Floating(partOf, _) =>
           board.ships.get(partOf).flatMap { orientation =>
             val sections = orientation.sections(partOf)
             highlighted.find(hc => sections.contains(hc.position)).map(_.highlight)

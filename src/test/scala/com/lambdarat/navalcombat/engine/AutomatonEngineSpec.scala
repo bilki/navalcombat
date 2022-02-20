@@ -28,8 +28,8 @@ class AutomatonEngineSpec extends ScalaCheckSuite:
   property("AI player should always shoot a random unknown or floating cell") {
     forAll(arbitrary[Board], genDice) { (board: Board, dice: Dice) =>
       val initialMissesAndSunk = board.cells.flatten.count {
-        case Miss | Sunk(_) => true
-        case anyOther       => false
+        case Miss | Sunk(_, _) => true
+        case anyOther          => false
       }
 
       val shot1           = AutomatonEngine.nextShot(dice, board)
@@ -37,8 +37,8 @@ class AutomatonEngineSpec extends ScalaCheckSuite:
       val afterShotsBoard = AutomatonEngine.nextShot(dice, shot2)
 
       val countMissesAndSunk = afterShotsBoard.cells.flatten.count {
-        case Miss | Sunk(_) => true
-        case anyOther       => false
+        case Miss | Sunk(_, _) => true
+        case anyOther          => false
       }
 
       assertEquals(initialMissesAndSunk, 0)
