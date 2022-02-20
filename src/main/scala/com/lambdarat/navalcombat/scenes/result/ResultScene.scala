@@ -2,6 +2,7 @@ package com.lambdarat.navalcombat.scenes.result
 
 import com.lambdarat.navalcombat.assets.Assets
 import com.lambdarat.navalcombat.core.*
+import com.lambdarat.navalcombat.core.Cell.Sunk
 import com.lambdarat.navalcombat.core.Ship.*
 import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.result.view.ResultView
@@ -29,14 +30,20 @@ object ResultScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
   def subSystems: Set[SubSystem] = Set.empty
 
   private def shipResultFor(board: Board, ship: Ship): List[Cell] =
-    val maybeCells = for
-      location <- board.ships.get(ship)
-      coords = location.sections(ship)
-    yield coords.foldLeft(List.empty[Cell]) { case (accCells, nextCoord) =>
-      board.get(nextCoord.x, nextCoord.y).fold(accCells)(_ :: accCells)
-    }
+    if board.isCompletelySunk(ship) then
+      (1 to ship.size.toInt)
+        .zip(Section.values)
+        .toList
+        .map { case (_, section) => Sunk(ship, section) }
+    else
+      val maybeCells = for
+        location <- board.ships.get(ship)
+        coords = location.sections(ship)
+      yield coords.reverse.foldLeft(List.empty[Cell]) { case (sectionsCells, nextCoord) =>
+        board.get(nextCoord.x, nextCoord.y).fold(sectionsCells)(_ :: sectionsCells)
+      }
 
-    maybeCells.getOrElse(List.empty)
+      maybeCells.getOrElse(List.empty)
 
   private def sideResultFor(board: Board): SideResult =
     SideResult(
@@ -48,7 +55,7 @@ object ResultScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
     )
 
   def resultViewModelFromBoards(model: NavalCombatModel): ResultViewModel =
-    val combatResult = if (model.player.isEndGame) then Win else Lose
+    val combatResult = if model.player.isEndGame then Win else Lose
     val playerResult = sideResultFor(model.player)
     val enemyResult  = sideResultFor(model.enemy)
 
