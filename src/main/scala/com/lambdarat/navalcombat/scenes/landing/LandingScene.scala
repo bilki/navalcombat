@@ -78,10 +78,11 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       model: NavalCombatModel,
       viewModel: LandingViewModel
   ): GlobalEvent => Outcome[LandingViewModel] =
-    case FrameTick =>
-      viewModel.play.update(context.inputState.mouse).map { btn =>
-        viewModel.copy(play = btn)
-      }
+    case _: MouseEvent.MouseUp | _: MouseEvent.MouseDown =>
+      for
+        updatedButton <- viewModel.play.update(context.inputState.mouse)
+      yield
+        viewModel.copy(play = updatedButton)
     case PlayCombat =>
       Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(PlacementScene.name))
     case _ =>
