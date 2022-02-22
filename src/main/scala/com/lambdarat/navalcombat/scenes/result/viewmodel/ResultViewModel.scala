@@ -2,6 +2,8 @@ package com.lambdarat.navalcombat.scenes.result.viewmodel
 
 import com.lambdarat.navalcombat.core.Cell
 
+import indigoextras.ui.Button
+
 enum CombatResult derives CanEqual:
   case Win, Lose
 
@@ -16,5 +18,6 @@ final case class SideResult(
 final case class ResultViewModel(
     result: CombatResult,
     player: SideResult,
-    enemy: SideResult
+    enemy: SideResult,
+    backButton: Button
 )

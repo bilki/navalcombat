@@ -57,7 +57,7 @@ object NavalCombat extends IndigoGame[GameConfig, NavalCombatSetupData, NavalCom
         landing = LandingScene.initialLandingViewModel(startupData),
         placement = PlacementScene.initialPlacementViewModel(startupData),
         player = PlayerScene.initialPlayerViewModel(startupData),
-        result = ResultScene.resultViewModelFromBoards(model)
+        result = ResultScene.resultViewModelFromBoards(startupData, model)
       )
     )
 

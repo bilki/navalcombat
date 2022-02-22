@@ -49,7 +49,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       buttonAssets = Assets.simpleButtonAssets,
       bounds = playBounds.alignCenter,
       depth = Depth(1)
-    ).withUpActions(PlayCombat)
+    ).withUpActions(PlaceShips)
 
     val playMessage = Text(
       "PLAY",
@@ -70,7 +70,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel
   ): GlobalEvent => Outcome[NavalCombatModel] =
-    case PlayCombat => Outcome(model.copy(player = Board.empty))
+    case PlaceShips => Outcome(model.copy(player = Board.empty))
     case _          => Outcome(model)
 
   def updateViewModel(
@@ -79,11 +79,9 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
       viewModel: LandingViewModel
   ): GlobalEvent => Outcome[LandingViewModel] =
     case _: MouseEvent.MouseUp | _: MouseEvent.MouseDown =>
-      for
-        updatedButton <- viewModel.play.update(context.inputState.mouse)
-      yield
-        viewModel.copy(play = updatedButton)
-    case PlayCombat =>
+      for updatedButton <- viewModel.play.update(context.inputState.mouse)
+      yield viewModel.copy(play = updatedButton)
+    case PlaceShips =>
       Outcome(viewModel).addGlobalEvents(SceneEvent.JumpTo(PlacementScene.name))
     case _ =>
       Outcome(viewModel)
@@ -102,5 +100,4 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
     )
 
 object LandingEvents:
-  case object PlayCombat extends GlobalEvent
-  given CanEqual[PlayCombat.type, GlobalEvent] = CanEqual.derived
+  case object PlaceShips extends GlobalEvent derives CanEqual

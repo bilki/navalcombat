@@ -5,10 +5,13 @@ import com.lambdarat.navalcombat.core.*
 import com.lambdarat.navalcombat.core.Ship.*
 import com.lambdarat.navalcombat.core.Cell.*
 import com.lambdarat.navalcombat.draw.Graphics
+import com.lambdarat.navalcombat.scenes.result.ResultEvents
 import com.lambdarat.navalcombat.scenes.result.viewmodel.{ResultViewModel, SideResult}
+import com.lambdarat.navalcombat.utils.*
 
 import indigo.*
 import indigo.Material.ImageEffects
+import indigoextras.ui.Button
 
 object ResultView:
 
@@ -18,6 +21,7 @@ object ResultView:
   private val SHIP_SECTION_WIDTH          = 64
   private val SHIP_RESULT_TOP_PADDING     = SHIP_SECTION_WIDTH + 25
   private val SIDE_RESULT_TOP_PADDING     = 50
+  private val BUTTON_TEXT_BOTTOM_PADDING  = 10
 
   def drawShipResults(ship: Ship, cells: List[Cell], position: Point): List[Graphic[ImageEffects]] =
     val (results, _) = cells.foldLeft((List.empty[Graphic[ImageEffects]], position)) {
@@ -74,6 +78,17 @@ object ResultView:
     val playerResultNodes = drawSideResult(result.player, playerResultsPosition)
     val enemyResultNodes  = drawSideResult(result.enemy, enemyResultsPosition)
 
+    val backMessage = Text(
+      "PLAY",
+      Assets.ponderosaFontKey,
+      Material.ImageEffects(Assets.ponderosaImgName)
+    ).moveTo(
+      result.backButton.bounds.center.x,
+      result.backButton.bounds.center.y - BUTTON_TEXT_BOTTOM_PADDING
+    ).alignCenter
+
+    val backButtonNodes = result.backButton.draw :: backMessage :: Nil
+
     SceneUpdateFragment(
-      titlesNodes ++ playerResultNodes ++ enemyResultNodes
+      titlesNodes ++ playerResultNodes ++ enemyResultNodes ++ backButtonNodes
     )
