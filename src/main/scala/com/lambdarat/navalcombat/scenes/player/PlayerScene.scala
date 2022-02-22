@@ -24,7 +24,7 @@ object PlayerScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalCo
   type SceneModel     = NavalCombatModel
   type SceneViewModel = PlayerViewModel
 
-  def name: SceneName = SceneName("player")
+  val name: SceneName = SceneName("player")
 
   def eventFilters: EventFilters = EventFilters.Permissive
 

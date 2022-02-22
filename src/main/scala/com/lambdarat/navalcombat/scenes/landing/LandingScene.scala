@@ -23,7 +23,7 @@ object LandingScene extends Scene[NavalCombatSetupData, NavalCombatModel, NavalC
   type SceneModel     = NavalCombatModel
   type SceneViewModel = LandingViewModel
 
-  def name: SceneName = SceneName("landing")
+  val name: SceneName = SceneName("landing")
 
   def eventFilters: EventFilters = EventFilters.Permissive
 

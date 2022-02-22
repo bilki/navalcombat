@@ -8,11 +8,13 @@ import com.lambdarat.navalcombat.engine.BoardEngine.*
 import com.lambdarat.navalcombat.scenes.placement.view.*
 import com.lambdarat.navalcombat.scenes.placement.viewmodel.*
 import com.lambdarat.navalcombat.scenes.player.PlayerScene
+import com.lambdarat.navalcombat.scenes.result.ResultScene
 import com.lambdarat.navalcombat.utils.*
 import com.lambdarat.navalcombat.utils.given
 
 import indigo.*
 import indigo.scenes.*
+import indigo.scenes.SceneEvent.SceneChange
 import indigoextras.geometry.*
 import indigoextras.subsystems.*
 import indigoextras.trees.QuadTree
@@ -26,7 +28,7 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
   type SceneModel     = NavalCombatModel
   type SceneViewModel = PlacementViewModel
 
-  def name: SceneName = SceneName("combat")
+  val name: SceneName = SceneName("combat")
 
   def eventFilters: EventFilters = EventFilters.Permissive
 
@@ -117,65 +119,74 @@ object PlacementScene extends Scene[NavalCombatSetupData, NavalCombatModel, Nava
           )
   end highlightedCells
 
+  private def handlePlacement(
+      mouse: Mouse,
+      keyboard: Keyboard,
+      model: NavalCombatModel,
+      viewModel: PlacementViewModel
+  ): Outcome[PlacementViewModel] =
+    val gridBounds = viewModel.sceneSettings.gridBounds
+    val modelSpace = viewModel.sceneSettings.modelSpace
+
+    (mouse.mouseClicked, viewModel.dragging) match
+      case (true, None) =>
+        val nextPlacingShip = viewModel.sidebarShips.find { ship =>
+          val shipGraphic = PlacementView.sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics)
+          mouse.wasMouseClickedWithin(shipGraphic.bounds)
+        }.map(PlacingShip(_, Rotation.Horizontal))
+
+        val nextSidebarShips = nextPlacingShip.fold(viewModel.sidebarShips) { dragging =>
+          viewModel.sidebarShips.filterNot(_ == dragging.ship)
+        }
+
+        Outcome(
+          viewModel.copy(dragging = nextPlacingShip, highlightedCells = List.empty, sidebarShips = nextSidebarShips)
+        )
+      case (false, Some(dragged)) =>
+        val highlighted = highlightedCells(dragged, gridBounds, modelSpace, mouse.position, model)
+        val newRotation =
+          if keyboard.keysAreUp(Key.KEY_R) || mouse.pressed(MouseButton.RightMouseButton) then dragged.rotation.reverse
+          else dragged.rotation
+        val nextPlacingShip = Some(PlacingShip(dragged.ship, newRotation))
+
+        Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
+      case (true, Some(dragged)) =>
+        val highlighted = highlightedCells(dragged, gridBounds, modelSpace, mouse.position, model)
+
+        val maybeUpdateBoard =
+          for
+            highlightedCell <- Option
+              .when(highlighted.size == dragged.ship.size.toInt)(highlighted.headOption)
+              .flatten
+            maybePlaceShip = PlaceShip(dragged.ship, highlightedCell.position, dragged.rotation)
+            position       = highlightedCell.position
+            placeShip <- Option.when(model.player.canPlace(dragged.ship, dragged.rotation, position.x, position.y))(
+              maybePlaceShip
+            )
+          yield placeShip
+
+        Outcome(viewModel.copy(dragging = None, highlightedCells = List.empty)).flatMap { nextViewModel =>
+          maybeUpdateBoard match
+            case None =>
+              Outcome(nextViewModel.copy(sidebarShips = dragged.ship :: nextViewModel.sidebarShips))
+            case Some(placeShip) =>
+              Outcome(
+                nextViewModel.copy(sidebarShips = nextViewModel.sidebarShips.filterNot(_ == placeShip.shipType))
+              ).addGlobalEvents(placeShip)
+        }
+
+      case (false, None) =>
+        Outcome(viewModel)
+
   def updateViewModel(
       context: FrameContext[NavalCombatSetupData],
       model: NavalCombatModel,
       viewModel: PlacementViewModel
   ): GlobalEvent => Outcome[PlacementViewModel] =
     case FrameTick =>
-      val gridBounds = viewModel.sceneSettings.gridBounds
-      val modelSpace = viewModel.sceneSettings.modelSpace
-
-      (context.mouse.mouseClicked, viewModel.dragging) match
-        case (true, None) =>
-          val nextPlacingShip = viewModel.sidebarShips.find { ship =>
-            val shipGraphic = PlacementView.sidebarShipGraphicFor(ship, viewModel.sidebarShipGraphics)
-            context.mouse.wasMouseClickedWithin(shipGraphic.bounds)
-          }.map(PlacingShip(_, Rotation.Horizontal))
-
-          val nextSidebarShips = nextPlacingShip.fold(viewModel.sidebarShips) { dragging =>
-            viewModel.sidebarShips.filterNot(_ == dragging.ship)
-          }
-
-          Outcome(
-            viewModel.copy(dragging = nextPlacingShip, highlightedCells = List.empty, sidebarShips = nextSidebarShips)
-          )
-        case (false, Some(dragged)) =>
-          val highlighted = highlightedCells(dragged, gridBounds, modelSpace, context.mouse.position, model)
-          val newRotation =
-            if context.keyboard.keysAreUp(Key.KEY_R) || context.mouse.pressed(MouseButton.RightMouseButton) then
-              dragged.rotation.reverse
-            else dragged.rotation
-          val nextPlacingShip = Some(PlacingShip(dragged.ship, newRotation))
-
-          Outcome(viewModel.copy(dragging = nextPlacingShip, highlightedCells = highlighted))
-        case (true, Some(dragged)) =>
-          val highlighted = highlightedCells(dragged, gridBounds, modelSpace, context.mouse.position, model)
-
-          val maybeUpdateBoard =
-            for
-              highlightedCell <- Option
-                .when(highlighted.size == dragged.ship.size.toInt)(highlighted.headOption)
-                .flatten
-              maybePlaceShip = PlaceShip(dragged.ship, highlightedCell.position, dragged.rotation)
-              position       = highlightedCell.position
-              placeShip <- Option.when(model.player.canPlace(dragged.ship, dragged.rotation, position.x, position.y))(
-                maybePlaceShip
-              )
-            yield placeShip
-
-          Outcome(viewModel.copy(dragging = None, highlightedCells = List.empty)).flatMap { nextViewModel =>
-            maybeUpdateBoard match
-              case None =>
-                Outcome(nextViewModel.copy(sidebarShips = dragged.ship :: nextViewModel.sidebarShips))
-              case Some(placeShip) =>
-                Outcome(
-                  nextViewModel.copy(sidebarShips = nextViewModel.sidebarShips.filterNot(_ == placeShip.shipType))
-                ).addGlobalEvents(placeShip)
-          }
-
-        case (false, None) =>
-          Outcome(viewModel)
+      handlePlacement(context.mouse, context.keyboard, model, viewModel)
+    case SceneChange(ResultScene.name, _, _) =>
+      Outcome(initialPlacementViewModel(context.startUpData))
     case _ =>
       Outcome(viewModel)
 
